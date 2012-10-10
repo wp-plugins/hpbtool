@@ -321,6 +321,22 @@ a.hpb_view_post_list_btn:active {
 	background:url("image/admin/view_comment2_a.png");
 }
 
+#hpb_comment_view_btn3 {
+	display:block;
+	background:url("image/admin/view_comment3.png");
+	width:211px;
+	height:51px;
+	text-decoration:none;
+}
+
+#hpb_comment_view_btn3:hover {
+	background:url("image/admin/view_comment3_h.png");
+}
+
+#hpb_comment_view_btn3:active {
+	background:url("image/admin/view_comment3_a.png");
+}
+
 #hpb_cockpit_check_btn {
 	display:block;
 	background:url("image/admin/cockpit_check.png");

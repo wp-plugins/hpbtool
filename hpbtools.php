@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.0.0
+Version: 1.0.1
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb17_wp_hpbdash
 */
@@ -21,13 +21,13 @@ require_once HPB_PLUGIN_DIR.'/cockpit.php';
 add_action( 'admin_menu' , 'hpb_option' );
  
 function hpb_option() {
-	$icon_url = HPB_PLUGIN_URL.'/image/admin/menu_hpb.png';	add_menu_page( 'HPBTOOL', 'hpbダッシュボード', 'administrator', 'hpb_main', 'hpb_admin_home', $icon_url, 3 );
-	add_submenu_page( 'hpb_main', 'ホーム', 'ホーム', 'administrator', 'hpb_main', 'hpb_admin_home' );
-	add_submenu_page( 'hpb_main', 'ソーシャルボタン設定', 'ソーシャルボタン設定', 'administrator', 'hpb_social_page', 'hpb_social_page' );
-	add_submenu_page( 'hpb_main', 'フォーム設定', 'フォーム設定', 'administrator', 'hpb_form_page', 'hpb_form_page' );
-	add_submenu_page( 'hpb_main', 'コックピット設定', 'コックピット設定', 'administrator', 'hpb_cockpit_page', 'hpb_cockpit_page' );
-	add_submenu_page( 'hpb_main', 'アクセス解析設定', 'アクセス解析設定', 'administrator', 'hpb_access_analysis_page', 'hpb_access_analysis_page' );
-	add_submenu_page( 'hpb_main', 'オプション', 'オプション', 'administrator', 'hpb_dashborad_widget_option', 'hpb_dashborad_widget_option' );		
+	$icon_url = HPB_PLUGIN_URL.'/image/admin/menu_hpb.png';	add_menu_page( 'HPBTOOL', 'hpbダッシュボード', '1', 'hpb_main', 'hpb_admin_home', $icon_url, 3 );
+	add_submenu_page( 'hpb_main', 'ホーム', 'ホーム', '1', 'hpb_main', 'hpb_admin_home' );
+	add_submenu_page( 'hpb_main', 'ソーシャルボタン設定', 'ソーシャルボタン設定', '8', 'hpb_social_page', 'hpb_social_page' );
+	add_submenu_page( 'hpb_main', 'フォーム設定', 'フォーム設定', '8', 'hpb_form_page', 'hpb_form_page' );
+	add_submenu_page( 'hpb_main', 'コックピット設定', 'コックピット設定', '8', 'hpb_cockpit_page', 'hpb_cockpit_page' );
+	add_submenu_page( 'hpb_main', 'アクセス解析設定', 'アクセス解析設定', '8', 'hpb_access_analysis_page', 'hpb_access_analysis_page' );
+	add_submenu_page( 'hpb_main', 'オプション', 'オプション', '8', 'hpb_dashborad_widget_option', 'hpb_dashborad_widget_option' );		
 }
 
 function hpb_admin_home() {
@@ -35,10 +35,14 @@ function hpb_admin_home() {
 <div id="hpb_dashboard_body">
 <?php
 	$hpbpage = $_GET['hpbpage'];
-	if( isset( $_POST['hpb-update-data'] ) ) {
+	if( isset( $_POST['hpb-update-data'] ) && hpb_is_admin_level() ) {
 		hpb_import_list_page();
 	} else {
-		hpb_import_page();
+		echo '<div id="hpb_dashboard_title" class="wrap"><h2><img src="'.HPB_PLUGIN_URL.'/image/admin/icon_hpb.png">hpbダッシュボード</h2></div>';
+		if( hpb_is_admin_level() ) {
+			hpb_plugin_update();
+			hpb_import_page();
+		}
 		hpb_guidance_activate_multibyte_patch();
 		hpb_guidance_new_post();
 		hpb_dashboard_widget_function();
@@ -46,6 +50,19 @@ function hpb_admin_home() {
 ?>
 </div>
 <?php
+}
+
+function hpb_plugin_update() {
+	$update_plugins = get_plugin_updates();
+	foreach( (array) $update_plugins as $update_plugin ) {
+		if('hpbtool' === $update_plugin->update->slug) {
+?>
+<form method="post" action="update-core.php?action=do-plugin-upgrade" name="upgrade-plugins">
+<?php wp_nonce_field('upgrade-core'); wp_nonce_field('upgrade-core'); ?>
+<input type="hidden" name="checked[]" value="hpbtool/hpbtools.php"/><div class="submit hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch2.png';?>" class="hpb_eyecatch">hpbダッシュボード の更新があります。<input id="upgrade-plugins" class="button-primary" type="submit" value="今すぐ更新する" name="upgrade" /></div>	</form>	
+<?php
+		}
+	}
 }
 
 function hpb_guidance_new_post() {
@@ -58,7 +75,7 @@ function hpb_guidance_new_post() {
 		update_option('hpb_dashboard_guidance', '1');
 		return;
 	}
-	$wp_post_type_names = get_post_types(array('_builtin' => false), 'objects');
+	$wp_post_type_names = get_post_types(array('_builtin' => false, 'public' => true), 'objects');
 ?>
 <div id="hpb_guidance">
 	<a href="<?php echo str_replace('%7E', '~', $_SERVER['REQUEST_URI']); ?>&hpb_visible=false" id="hpb_guidance_invisible"></a>
@@ -78,7 +95,7 @@ function hpb_guidance_new_post() {
 <?php
 	}
 ?>
-	</td><td><a href="<?php echo get_option('siteurl');?>" id="hpb_guidance_view_site" target="_blank"></a></td></tr></table>
+	</td><td><a href="<?php echo home_url();?>" id="hpb_guidance_view_site" target="_blank"></a></td></tr></table>
 </div>
 <?php
 }
@@ -96,6 +113,35 @@ function hpb_getfooter() {
 	hpb_getfooter_access_analysis();
 }
 
+add_filter ('wp_default_editor', 'hpb_default_editor');
+
+function hpb_default_editor ($r) {
+	$user_agent = $_SERVER['HTTP_USER_AGENT'];
+	$reg = '/Android (\d+)\\.(\d+)/';
+	$a   = array();
+	preg_match($reg, $user_agent, $a);
+	if(count($a) >= 2 && ($a[1] == 3 || ($a[1] == 4 && $a[2] == 0))) {
+		return "html";
+	}
+	return $r;
+}
+
+add_action('admin_head-post-new.php', 'hpb_header_postnew');
+add_action('admin_head-post.php', 'hpb_header_postnew');
+
+function hpb_header_postnew() {
+	$user_agent = $_SERVER['HTTP_USER_AGENT'];
+	$reg = '/OS (\d+)_(\d+)(.+)like Mac OS X/';
+	$a   = array();
+	preg_match($reg, $user_agent, $a);
+	if(count($a) >= 2 && $a[1] == 5){
+		wp_enqueue_script('jquery');
+?>
+<script type="text/javascript">jQuery(document).ready(function($){$('input').focusout(function(){$('iframe#content_ifr').focus();});});</script>
+<?php
+	}
+}
+
 add_action("wp_enqueue_scripts", "hpb_enqueue_style");
 
 function hpb_enqueue_style () {
@@ -111,7 +157,46 @@ function hpb_the_content ( $content ) {
 	return $content;
 }
 
+function hpb_is_admin_level() {
+	$user = get_userdata( get_current_user_id() );
+	$user_level = (int) $user->user_level;
+	if( $user_level >= 8 ){
+		return true;
+	}
+	return false;
+}
+
+function hpb_is_editor_level() {
+	$user = get_userdata( get_current_user_id() );
+	$user_level = (int) $user->user_level;
+	if( $user_level >= 5 ){
+		return true;
+	}
+	return false;
+}
+
+function hpb_is_author_level() {
+	$user = get_userdata( get_current_user_id() );
+	$user_level = (int) $user->user_level;
+	if( $user_level >= 2 ){
+		return true;
+	}
+	return false;
+}
+
+function hpb_is_subscriber_level() {
+	$user = get_userdata( get_current_user_id() );
+	$user_level = (int) $user->user_level;
+	if( $user_level >= 1 ){
+		return true;
+	}
+	return false;
+}
+
 function hpb_custom_admin_menu () {
+	if( !hpb_is_subscriber_level() ){
+		return;
+	}
 	if( get_option('hpb_hide_menus', 1 ) != 1 ) {
 		return;
 	}
@@ -194,7 +279,7 @@ function hpb_dashboard_widget_function() {
 <p class="hpb_content_head"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/post_new_head.png"/></p>
 <table class="hpb_content_table">
 <?php
-	$wp_post_type_names = get_post_types(array('_builtin' => false), 'objects');
+	$wp_post_type_names = get_post_types(array('_builtin' => false, 'public' => true), 'objects');
 	$index = 0;
 	foreach( $wp_post_type_names as $post_type ) {
 		$index += 1;
@@ -205,11 +290,12 @@ function hpb_dashboard_widget_function() {
 ?>
 	<tr><td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/post_blog_icon.png"></td><td><ul><li class="hpb_menu_item"><a href="post-new.php" class="hpb_post_new_btn"></a></li><li class="hpb_menu_item"><a href="<?php echo home_url();?>?post_type=post" class="hpb_view_post_btn" target="_blank"></a></li><li class="hpb_menu_item"><a href="edit.php" class="hpb_view_post_list_btn"></a><li></ul></td><tr>
 </table><br>
+<?php if( hpb_is_subscriber_level() ) { ?>
 <p class="hpb_content_head"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/check_head.png"/></p>
 <table class="hpb_content_table"><tr>
 	<td class="hpb_menu_icon hpb_first_menu"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/comment_icon.png"></td>
-	<td class="hpb_first_menu_contents"><ul><li class="hpb_menu_item"><a href='edit-comments.php?comment_status=moderated' id="<?php $comment_counts = get_comment_count(); if( $comment_counts['awaiting_moderation'] == 0 ) { echo 'hpb_comment_approval_btn3';} elseif($comment_counts['awaiting_moderation'] < 100 ) { echo 'hpb_comment_approval_btn';} else { echo 'hpb_comment_approval_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts['awaiting_moderation'] == 0 ) { echo ' displaynone';} ?>"><?php $comment_counts = get_comment_count(); echo $comment_counts['awaiting_moderation']; ?></span></a></li>
-	<li class="hpb_menu_item"><a href='edit-comments.php?comment_status=approved' id="<?php $comment_counts = get_comment_count(); if($comment_counts['approved'] == 0 ) { echo 'hpb_comment_view_btn3';} elseif($comment_counts['approved'] < 100 ) { echo 'hpb_comment_view_btn';} else { echo 'hpb_comment_view_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts['approved'] == 0 ) { echo ' displaynone';} ?>"><?php echo $comment_counts['approved']; ?></span></a></li></ul></td>
+	<td class="hpb_first_menu_contents"><ul><li class="hpb_menu_item"><a href='edit-comments.php?comment_status=moderated' id="<?php $comment_counts = wp_count_comments(); if( $comment_counts->moderated == 0 ) { echo 'hpb_comment_approval_btn3';} elseif($comment_counts->moderated < 100 ) { echo 'hpb_comment_approval_btn';} else { echo 'hpb_comment_approval_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts->moderated == 0 ) { echo ' displaynone';} ?>"><?php echo $comment_counts->moderated; ?></span></a></li>
+	<li class="hpb_menu_item"><a href='edit-comments.php?comment_status=approved' id="<?php if($comment_counts->approved == 0 ) { echo 'hpb_comment_view_btn3';} elseif($comment_counts->approved < 100 ) { echo 'hpb_comment_view_btn';} else { echo 'hpb_comment_view_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts->approved == 0 ) { echo ' displaynone';} ?>"><?php echo $comment_counts->approved; ?></span></a></li></ul></td>
 </tr><tr>
 	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/cockpit_icon.png"></td>
 	<td><ul><li class="hpb_menu_item"><a href='http://www.justsystems.com/jp/links/hpb/cp.html?p=hpb17_wp_hpbdash' id="hpb_cockpit_check_btn" target="_blank"></a></li></ul></td>
@@ -217,10 +303,12 @@ function hpb_dashboard_widget_function() {
 	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/seo_icon.png"></td>
 	<td><ul><li class="hpb_menu_item"><a href='https://kantan-access.com/jana_webapp/login.do' id="hpb_aa_check_btn" target="_blank"></a></li></ul></td>
 </tr></table>
+<?php } ?>
 <div class="hpb_clearboth"></div></td>
 <p class="hpb_content_head"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/settings_head.png"/></p>
-<table class="hpb_content_table"><tr>
-<td class="hpb_menu_icon hpb_first_menu"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/option_icon.png"/></td>
+<table class="hpb_content_table">
+<?php if( hpb_is_admin_level() ) { ?>
+<tr><td class="hpb_menu_icon hpb_first_menu"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/option_icon.png"/></td>
 <td class="hpb_first_menu_contents"><ul class="hpb_option_settings_category">
 	<li class="hpb_option_menu_item"><a href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_social_page'; ?>" id="hpb_socialbutton_settings"></a></li>
 	<li class="hpb_option_menu_item"><a href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_cockpit_page'; ?>" id="hpb_cockpit_settings"></a></li>
@@ -230,6 +318,7 @@ function hpb_dashboard_widget_function() {
 	<li class="hpb_option_menu_item"><a href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_dashborad_widget_option'; ?>" id="hpb_option_settings"></a></li>	
 </ul>
 <div class="hpb_clearboth"></div></td></tr>
+<?php  } ?>
 <tr><td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/help_icon.png"/></td>
 <td><ul class="hpb_option_settings_category hpb_menu_list">
 	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash" id="hpb_help" target="_blank"></a></li>
@@ -290,6 +379,9 @@ function getPostTypeIconByName( $post_title ) {
 }
 
 function redirect_dashiboard() {
+	if( !hpb_is_subscriber_level() ){
+		return;
+	}
 	if ( get_option('hpb_hide_menus', 1 ) == 1 && basename($_SERVER['REQUEST_URI']) == 'wp-admin' ) {
 		wp_redirect(get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main');
 		exit;
@@ -311,12 +403,30 @@ function hpb_custom_editor_settings( $initArray ){
 
 add_filter( 'tiny_mce_before_init', 'hpb_custom_editor_settings' );
 
-add_filter(  'gettext',  'change_side_text'  );
-add_filter(  'ngettext',  'change_side_text'  );
-function change_side_text( $translated ) {
-     $translated = str_ireplace(  '投稿',  'ブログ',  $translated );
-     return $translated;
+function change_post_menu_label() {
+	if( !hpb_is_subscriber_level() ){
+		return;
+	}
+	global $menu;
+	global $submenu;
+	if( $menu[5][0] == 投稿 ) {
+		$menu[5][0] = 'ブログ';
+		$submenu['edit.php'][5][0] = 'ブログ一覧';
+	}
 }
+
+function change_post_object_label() {
+	if( !hpb_is_subscriber_level() ){
+		return;
+	}
+	global $wp_post_types;
+	$labels = &$wp_post_types['post']->labels;
+	if( $labels->name == 投稿 ) {
+		$labels->name = 'ブログ';
+	}
+}
+add_action( 'init', 'change_post_object_label' );
+add_action( 'admin_menu', 'change_post_menu_label' );
 
 add_action( 'admin_footer_text', 'custom_admin_footer' );
 function custom_admin_footer() {

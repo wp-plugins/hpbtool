@@ -29,7 +29,6 @@ function hpb_import_list_page() {
 
 function hpb_import_page() {
 ?>
-		<div id="hpb_dashboard_title" class="wrap"><h2><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/icon_hpb.png';?>">hpbダッシュボード</h2></div>
 <?php
 		if( !file_exists( HPB_PLUGINDATA_DIR.'/usercontents.xml' ) ) {
 			return;
