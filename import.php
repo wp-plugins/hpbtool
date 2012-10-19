@@ -308,9 +308,8 @@ function hpb_import_xml( $post ) {
 				'post_type'      => strval( $item->post_type )
 			);
 			wp_update_post( $update_post );
-			if( $item->template_name != '' ){
-				update_post_meta( $new_page, '_wp_page_template', strval( $item->template_name ) );
-			}
+			update_post_meta( $new_page, '_wp_page_template', strval( $item->template_name ) );
+				
 			//attachment
 			$attachments = $item->attachments;
 			if( $attachments ){
@@ -319,9 +318,10 @@ function hpb_import_xml( $post ) {
 				}
 			}
 
-			/* delete custom menu */
-			_wp_delete_post_menu_item($new_page);
-
+			/* delete custom menu */		
+			if( $_POST['update_custom_menu'] == 1 ) {
+				_wp_delete_post_menu_item($new_page);
+			}
 			}
 		}
 
