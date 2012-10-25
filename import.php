@@ -399,15 +399,24 @@ function hpb_attachment( $id, $post_title, $post_content, $post_excerpt, $post_a
 	}
 
 	$post_query = array(
-		'post_type' => 'attachment'
+		'post_type' => 'attachment',
+		'numberposts' => -1,
+		'post_status' => null,
 	);
-
+	global $wpdb;
+	global $wp_version;
 	$attach_id = 0;
 	$attachments = get_posts( $post_query );
-	foreach( $attachments as $attachments ) {
-		$attach_path = get_attached_file( $attachments->ID );
+	foreach( $attachments as $attachment ) {
+		$attach_path = get_attached_file( $attachment->ID );
 		if( $attach_path == $filename ) {
-			$attach_id = $attachments->ID;
+			if($attach_id != 0 ){
+				if($wp_version >= 3.4 && $wp_version < 3.5){
+					hpb_delete_attachment($attachment->ID);
+				}
+			} else {
+				$attach_id = $attachment->ID;
+			}
 		}
 	}
 
@@ -431,6 +440,43 @@ function hpb_attachment( $id, $post_title, $post_content, $post_excerpt, $post_a
 	if( $featured_image == '1' ) {
 		add_post_meta($id, '_thumbnail_id', $attach_id, true);
 	}
+}
+
+function hpb_delete_attachment( $post_id ) {
+	global $wpdb;
+
+	if ( !$post = $wpdb->get_row( $wpdb->prepare("SELECT * FROM $wpdb->posts WHERE ID = %d", $post_id) ) )
+		return $post;
+
+	if ( 'attachment' != $post->post_type )
+		return false;
+
+	delete_post_meta($post_id, '_wp_trash_meta_status');
+	delete_post_meta($post_id, '_wp_trash_meta_time');
+
+	$meta = wp_get_attachment_metadata( $post_id );
+	$backup_sizes = get_post_meta( $post->ID, '_wp_attachment_backup_sizes', true );
+	$file = get_attached_file( $post_id );
+
+	if ( is_multisite() )
+		delete_transient( 'dirsize_cache' );
+
+	wp_delete_object_term_relationships($post_id, array('category', 'post_tag'));
+	wp_delete_object_term_relationships($post_id, get_object_taxonomies($post->post_type));
+
+	delete_metadata( 'post', null, '_thumbnail_id', $post_id, true ); // delete all for any posts.
+
+	$comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_post_ID = %d", $post_id ));
+	foreach ( $comment_ids as $comment_id )
+		wp_delete_comment( $comment_id, true );
+
+	$post_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM $wpdb->postmeta WHERE post_id = %d ", $post_id ));
+	foreach ( $post_meta_ids as $mid )
+		delete_metadata_by_mid( 'post', $mid );
+
+	$wpdb->delete( $wpdb->posts, array( 'ID' => $post_id ) );
+
+	clean_post_cache( $post );
 }
 
 function hpb_insert_category( $cat_name, $category_description, $category_nicename, $taxonomy ) {
