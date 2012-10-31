@@ -98,10 +98,11 @@ function hpb_import_list() {
 		if( $item->post_type != 'page' ) {
 			continue;
 		}
+		$title = esc_html( $item->title );
 		$exist_in_data = false;
 		for ( $index = 0; $index < count( $import_data ); $index++ ) {
 			$data = $import_data[$index];
-			if( $item->title == $data['title'] ) {
+			if( $title == $data['title'] || $item->title == $data['title'] ) {
 				$import_data[$index]['status'] = IMPORT_STATUS_UPDATE;
 				$import_data[$index]['type'] = PULLDOWN_TYPE_UPDATE;
 				$exist_in_data = true;
@@ -130,7 +131,7 @@ function hpb_import_list() {
 <?php
 	foreach ( $import_data as $data ) {
 		$link = $data['link'];
-		$title = $data['title'];
+		$title = esc_html( $data['title'] );
 		if( $title == '' ) {
 			$title = '(タイトルなし)';
 		}
@@ -181,9 +182,9 @@ function hpb_import_xml( $post ) {
 	}
 
 	hpb_change_theme( strval( $xml->theme_dir ) );
-	$blogdescription = $xml->blogdescription;
+	$blogdescription = esc_html( $xml->blogdescription );
 	update_option( 'blogdescription', $blogdescription );
-	$blogname = $xml->blogname;
+	$blogname = esc_html( $xml->blogname );
 	update_option( 'blogname', $blogname );
 	//create nav menu
 	$menus = array(); 
@@ -237,10 +238,11 @@ function hpb_import_xml( $post ) {
 		$index_xml_item = $index_xml_item + 1;
 		$new_page = 0;
 		$bexist = false;
+		$title = esc_html( $item->title );
 		if( $item->post_type == 'page' ){
 			foreach ( $exists as $exist ){
 				if( get_post_status( $exist->ID ) != 'trash' ) {
-					if( $exist->post_title == $item->title ){
+					if( $exist->post_title == $title || $exist->post_title == $item->title ){
 						$bexist = true;
 						$new_page = $exist->ID;			
 					}
@@ -265,7 +267,7 @@ function hpb_import_xml( $post ) {
 			$user = wp_get_current_user();
 			$add_post = array(
 				'post_author'    => strval( $user->id ),
-				'post_title'     => strval( $item->title ),
+				'post_title'     => strval( $title ),
 				'post_status'    => strval( $item->status ),
 				'comment_status' => strval( $item->comment_status ),
 				'ping_status'    => strval( $item->ping_status ),
@@ -299,11 +301,10 @@ function hpb_import_xml( $post ) {
 			$update_post = array(
 				'ID'             => $new_page,
 				'post_author'    => strval( $user->id ),
-				'post_title'     => strval( $item->title ),
+				'post_title'     => strval( $title ),
 				'post_status'    => strval( $item->status ),
 				'comment_status' => strval( $item->comment_status ),
 				'ping_status'    => strval( $item->ping_status ),
-				'post_name'      => strval( $item->post_name ),
 				'post_content'   => strval( $item->content ),
 				'post_type'      => strval( $item->post_type )
 			);
@@ -341,7 +342,7 @@ function hpb_import_xml( $post ) {
 
 				$custommenu_db_id = 0;
 				$parent_menu = $menus[ strval( $menu->parent_menu ) ];
-				$menu_title = strval( $item->title );
+				$menu_title = strval( $title );
 				if( $menu->menu_title != '' ) {
 					$menu_title = $menu->menu_title;
 				}
