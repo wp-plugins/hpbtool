@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.0.4
+Version: 1.1.0
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb17_wp_hpbdash
 */
@@ -43,6 +43,7 @@ function hpb_admin_home() {
 			hpb_plugin_update();
 			hpb_import_page();
 		}
+		hpb_cockpit_service_info();
 		hpb_guidance_activate_multibyte_patch();
 		hpb_guidance_new_post();
 		hpb_dashboard_widget_function();
@@ -63,6 +64,16 @@ function hpb_plugin_update() {
 <?php
 		}
 	}
+}
+
+function hpb_cockpit_service_info() {
+$isInfo = get_option('hpb_cockpit_service_info');
+if($isInfo != 1) {
+?>
+<div class="hpb_eyecatch_area"><table><tr><td><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch2.png';?>" class="hpb_eyecatch"></td><td>SNS連携アクセス解析サービス『コックピット』がサービス開始しました！<a href="https://web-cockpit.jp/" target="_blank">もっと詳しく</a><br>サービスにお申し込みいただくと、「コックピット設定」からWordPressとの連携機能がご利用いただけます。<a class="button-primary" href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_cockpit_page'; ?>">コックピット設定</a></td></tr></table></div>
+<?php
+}
+update_option('hpb_cockpit_service_info', 1);
 }
 
 function hpb_guidance_new_post() {
@@ -325,7 +336,13 @@ function hpb_dashboard_widget_function() {
 	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://support.justsystems.com/jp/app/servlet/productslink?apl=hpb17" id="hpb_faq" target="_blank"></a></li>
 </ul>
 <div class="hpb_clearboth"></div></td></tr></table>
-<?php	
+<?php
+global $wp_version;
+$plugin_data = get_plugin_data(__FILE__);
+?>
+<div id="version_info"><p>WordPressのバージョン：<?php echo $wp_version;?></p>
+<p>プラグインのバージョン：<?php echo $plugin_data['Version'];?></p></div>
+<?php
 } 
 
 function isUserDefineType ( $post_title ) {

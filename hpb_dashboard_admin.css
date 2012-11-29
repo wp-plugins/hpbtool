@@ -64,6 +64,7 @@ table.hpb_form_table td {
 
 .hpb_eyecatch_area input, .hpb_eyecatch_area a {
 	margin-left:30px;
+	text-decoration:none;
 }
 
 /*guidance*/
@@ -477,6 +478,11 @@ span.hpb_comment_count {
 
 ul.hpb_option_settings_category {
 	width:600px;
+}
+
+#version_info {
+	margin-top:25px;
+	float:right;
 }
 
 .hpb_clearboth {
