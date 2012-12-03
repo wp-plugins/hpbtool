@@ -66,7 +66,17 @@ function cockpit_publish_post_hook($post_id)
 	}
 	$post = get_post($post_id);
 	if( $post && ( $_POST['post_status'] == 'publish' && $_POST['original_post_status'] != 'publish' ) || $post->post_status == 'future' ) {
+
+		$auto_tweet = get_option('cockpit_auto_tweet', 1 );
 		$token = $this->cockpit_get_token($error_token);
+		$twitter_info = $this->cockpit_get_twitter_info($token, $error);
+		$twitter_active = false;
+		if($error === '' && count($twitter_info) != 0){
+			$twitter_active = true; 
+		}
+		if(!($auto_tweet && $twitter_active)){
+			return;
+		}
 		if($error_token === '' ){
 			if($this->cockpit_tweet($token, $post->post_title, esc_url( get_permalink($post_id) ), $error)){
 				update_post_meta($post_id, 'cockpit_lasttweet_status', __('投稿済み', 'cockpit'));
