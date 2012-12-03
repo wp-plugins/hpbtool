@@ -60,6 +60,9 @@ function cockpit_plugin_update() {
 
 function cockpit_publish_post_hook($post_id)
 {
+	if(!$this->is_active_cockpit_acount()){
+		return;
+	}
 	if(isset($_POST['cockpit_cancel_auto_post']))
 	{
 		return;
