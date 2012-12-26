@@ -82,15 +82,15 @@ function cockpit_publish_post_hook($post_id)
 				return;
 			}
 			if($this->cockpit_tweet($token, $post->post_title, esc_url( get_permalink($post_id) ), $error)){
-				update_post_meta($post_id, 'cockpit_lasttweet_status', __('投稿済み', 'cockpit'));
-				update_post_meta($post_id, 'cockpit_lasttweet', date('Y年m月d日 H:i'));
+				update_post_meta($post_id, '_cockpit_lasttweet_status', __('投稿済み', 'cockpit'));
+				update_post_meta($post_id, '_cockpit_lasttweet', date_i18n('Y年m月d日 H:i'));
 			} else {
-				update_post_meta($post_id, 'cockpit_lasttweet_status', __('エラー', 'cockpit'));
-				update_post_meta($post_id, 'cockpit_lasttweet', date('Y年m月d日 H:i'));
+				update_post_meta($post_id, '_cockpit_lasttweet_status', __('エラー', 'cockpit'));
+				update_post_meta($post_id, '_cockpit_lasttweet', date_i18n('Y年m月d日 H:i'));
 			}
 		} else {
-			update_post_meta($post_id, 'cockpit_lasttweet_status', __('エラー', 'cockpit'));
-			update_post_meta($post_id, 'cockpit_lasttweet', date('Y年m月d日 H:i'));
+			update_post_meta($post_id, '_cockpit_lasttweet_status', __('エラー', 'cockpit'));
+			update_post_meta($post_id, '_cockpit_lasttweet', date_i18n('Y年m月d日 H:i'));
 		}
 	}
 }
@@ -371,7 +371,7 @@ if(!is_null($site)){
 <h3><?php _e('アクセス解析するサイト', 'cockpit'); ?></h3>
 <table class="form_table"><tr><td><?php _e('あなたのサイト名', 'cockpit'); ?></td><td><?php echo get_bloginfo('name'); ?></td></tr>
 <tr><td>URL</td><td><?php echo home_url(); ?></td></tr>
-<tr><td>登録日時</td><td><?php echo date('Y年m月d日 H:i'); ?></td></tr></table>
+<tr><td>登録日時</td><td><?php echo date_i18n ('Y年m月d日 H:i'); ?></td></tr></table>
 </select><input name="cockpit_add_new" value="1" type="hidden"><input type="hidden" name="cockpit_add_site" value="1"><input class="button-primary" id="cockpit_on" type="submit" value="<?php _e('コックピットと連携', 'cockpit'); ?>"></input><a href="" class="button-secondary" >キャンセル</a></form>
 <?php
 }
@@ -650,8 +650,16 @@ function cockpit_inner_custom_box() {
 	}
 	$auto_tweet = get_option('cockpit_auto_tweet', 1 );
 	if($auto_tweet != 0 && $twitter_active){
-		$lasttweet = get_post_meta($post_id, 'cockpit_lasttweet', true);
-		$lasttweet_status = get_post_meta($post_id, 'cockpit_lasttweet_status', true);
+		$isRenameMeta = get_option('cockpit_retrieve_meta', 0);
+		if($isRenameMeta == 0){
+			global $wpdb;
+			$wpdb->query("UPDATE `wp_postmeta` SET `meta_key` = '_cockpit_lasttweet' WHERE `meta_key` = 'cockpit_lasttweet'");
+			$wpdb->query("UPDATE `wp_postmeta` SET `meta_key` = '_cockpit_lasttweet_status' WHERE `meta_key` = 'cockpit_lasttweet_status'");
+			update_option('cockpit_retrieve_meta', 1);
+		}
+
+		$lasttweet = get_post_meta($post_id, '_cockpit_lasttweet', true);
+		$lasttweet_status = get_post_meta($post_id, '_cockpit_lasttweet_status', true);
 	}
 ?>
 </div>
@@ -995,7 +1003,7 @@ function cockpit_tweet($token, $post_title, $post_url, &$error) {
 				if($status_code == 204){
 					return true;
 				}
-				$response_body = $response['response'];
+				$response_body = wp_remote_retrieve_body($response);
 				$return = json_decode($response_body,true);
 				$error = $this->cockpit_get_error_message($status_code, $return);
 				if($error === ''){

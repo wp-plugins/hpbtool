@@ -92,7 +92,6 @@ if(!is_search() && get_option( 'hpb_site_id', 0 ) != 0){
 function hpb_delete_site_access_analysis() {
 	$uri = 'http://webservice2.jana.justsystems.com';
 	$sm_location = 'https://kantan-access.com/jana_webservice2/services/SiteManager';
-	$client_sm = new SoapClient( null, array( 'location' => $sm_location, 'uri' => $uri ) );
 	$response_hpb_get_access_analysis_id;
 	$id_aa = hpb_get_access_analysis_id( $response_hpb_get_access_analysis_id );
 	if( $id_aa == '' ) {
@@ -112,7 +111,19 @@ function hpb_delete_site_access_analysis() {
 		</deleteSite>
 	</soapenv:Body>
 </soapenv:Envelope>';
-	$res =  $client_sm->__doRequest( $request, $sm_location, 'deleteSite', 1.1 );
+	$res = wp_remote_post( $sm_location, 
+				array(	
+				'method' => 'POST',
+				'timeout' => 45,
+				'sslverify' => false,
+				'cookies' => array(),
+					'headers' => array('Content-Type' => 'text/xml', 'SOAPAction' => 'deleteSite',),
+					'body' => $request,
+					));
+	if(is_wp_error($res)){
+		return  $res->get_error_message();
+	}
+	$res = wp_remote_retrieve_body($res);
 	$res_xml = simplexml_load_string( $res );
 	$elm = $res_xml->children( 'soapenv', true );
 	$elm = $elm->children( 'http://webservice2.jana.justsystems.com' );
@@ -130,7 +141,6 @@ function hpb_delete_site_access_analysis() {
 function hpb_add_site_access_analysis() {
 	$uri = 'http://webservice2.jana.justsystems.com';
 	$sm_location = 'https://kantan-access.com/jana_webservice2/services/SiteManager';
-	$client_sm = new SoapClient( null, array( 'location' => $sm_location, 'uri' => $uri ) );
 	$response_hpb_get_access_analysis_id;
 	$id_aa = hpb_get_access_analysis_id( $response_hpb_get_access_analysis_id );
 	if( $id_aa == '' ) {
@@ -154,7 +164,19 @@ function hpb_add_site_access_analysis() {
 		</addSite>
   </soapenv:Body>
 </soapenv:Envelope>';
-	$res =  $client_sm->__doRequest( $request, $sm_location, 'addSite', 1.1 );
+	$res = wp_remote_post( $sm_location, 
+				array(	
+				'method' => 'POST',
+				'timeout' => 45,
+				'sslverify' => false,
+				'cookies' => array(),
+					'headers' => array('Content-Type' => 'text/xml', 'SOAPAction' => 'addSite',),
+					'body' => $request,
+					));
+	if(is_wp_error($res)){
+		return  $res->get_error_message();
+	}
+	$res = wp_remote_retrieve_body($res);
 	$res_xml = simplexml_load_string( $res );
 	$elm = $res_xml->children( 'soapenv', true );
 	$elm = $elm->children( 'http://webservice2.jana.justsystems.com' );
@@ -183,7 +205,6 @@ function hpb_get_access_analysis_id( &$ErrorMessage ) {
 	$hpb_access_password = get_option('hpb_access_password');
 	$uri = 'http://webservice2.jana.justsystems.com';
 	$stm_location = 'https://kantan-access.com/jana_webservice2/services/ServiceTicketManager';
-	$client_stm = new SoapClient( null, array('location' => $stm_location, 'uri' => $uri, 'trace'=>true ) );
 	$request = '<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<soapenv:Body>
@@ -195,7 +216,20 @@ function hpb_get_access_analysis_id( &$ErrorMessage ) {
 		</getAllServiceTickets>
 	</soapenv:Body>
 </soapenv:Envelope>';
-	$res =  $client_stm->__doRequest( $request, $stm_location, 'getAllServiceTickets', 1.1 );
+	$res = wp_remote_post( $stm_location, 
+				array(	
+				'method' => 'POST',
+				'timeout' => 45,
+				'sslverify' => false,
+				'cookies' => array(),
+					'headers' => array('Content-Type' => 'text/xml', 'SOAPAction' => 'getAllServiceTickets',),
+					'body' => $request,
+					));
+	if(is_wp_error($res)){
+		$ErrorMessage = $res->get_error_message();
+		return  $id;
+	}
+	$res = wp_remote_retrieve_body($res);
 	$res_xml = simplexml_load_string( $res );
 	$elm = $res_xml->children( 'soapenv', true );
 	$elm = $elm->children( 'http://webservice2.jana.justsystems.com' );
@@ -262,7 +296,6 @@ function hpb_get_site_id( $id_aa, $url ) {
 	}
 	$uri = 'http://webservice2.jana.justsystems.com';
 	$sm_location = 'https://kantan-access.com/jana_webservice2/services/SiteManager';
-	$client_sm = new SoapClient( null, array( 'location' => $sm_location, 'uri' => $uri ) );
 	$request = '<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<soapenv:Body>
@@ -275,7 +308,19 @@ function hpb_get_site_id( $id_aa, $url ) {
 		</getAllSites>
 	</soapenv:Body>
 </soapenv:Envelope>';
-	$res =  $client_sm->__doRequest( $request, $sm_location, 'getAllSites', 1.1 );
+	$res = wp_remote_post( $sm_location, 
+				array(	
+				'method' => 'POST',
+				'timeout' => 45,
+				'sslverify' => false,
+				'cookies' => array(),
+					'headers' => array('Content-Type' => 'text/xml', 'SOAPAction' => 'getAllSite',),
+					'body' => $request,
+					));
+	if(is_wp_error($res)){
+		return  '';
+	}
+	$res = wp_remote_retrieve_body($res);
 	$res_xml = simplexml_load_string( $res );
 	$elm = $res_xml->children( 'soapenv', true );
 	$elm = $elm->children( 'http://webservice2.jana.justsystems.com' );
