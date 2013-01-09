@@ -3,7 +3,7 @@ Contributors: justsystems
 Author URI: http://www.justsystems.com/
 Tags: hpb Dashboard, japanese, hpb17, plugin, data importer, social button, inquiry form, access analysis
 Requires at least: 3.4
-Tested up to: 3.4.2
+Tested up to: 3.5
 Stable tag: trunk
 
 "hpb Dashboard" plug-in is the data importer for "Home Page Builder 17".

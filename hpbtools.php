@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.1.2
+Version: 1.1.3
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb17_wp_hpbdash
 */
@@ -267,7 +267,9 @@ function hpb_dashborad_widget_option() {
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_dashbord" value="1" <?php checked( get_option('hpb_visible_menu_dashbord', 0 ), 1 ); ?>/><?php echo __('ダッシュボード'); ?></div>
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_addpage" value="1" <?php checked( get_option('hpb_visible_menu_addpage', 0 ), 1 ); ?>/><?php echo __('固定ページ'); ?></div>
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_media" value="1" <?php checked( get_option('hpb_visible_menu_media', 0 ), 1 ); ?>/><?php echo __('メディア'); ?></div>
+<?php if( current_user_can('manage_links')){ ?>
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_link" value="1" <?php checked( get_option('hpb_visible_menu_link', 0 ), 1 ); ?>/><?php echo __('リンク'); ?></div>
+<?php } ?>
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_themes" value="1" <?php checked( get_option('hpb_visible_menu_themes', 0 ), 1 ); ?>/><?php echo __('外観'); ?></div>
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_tools" value="1" <?php checked( get_option('hpb_visible_menu_tools', 0 ), 1 ); ?>/><?php echo __('ツール'); ?></div>
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_users" value="1" <?php checked( get_option('hpb_visible_menu_users', 0 ), 1 ); ?>/><?php echo __('ユーザー'); ?></div>

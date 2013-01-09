@@ -152,7 +152,8 @@ function hpb_import_list() {
 ?>
 	<tr class="hpb_table_footer"><th>タイトル</th><th colspan="2">ステータス</th></tr>
 	</table><br>
-	<div id="hpb_update_custom_menu_field"><input type="checkbox" name="update_custom_menu" id="hpb_update_custom_menu" value="1" <?php checked( get_option('hpb_import_custom_menu', 1 ), 1 ); ?>><label for="hpb_update_custom_menu">　カスタムメニューを更新する。</label></input></div><br/>
+	<div id="hpb_update_custom_menu_field"><input type="checkbox" name="update_custom_menu" id="hpb_update_custom_menu" value="1" <?php checked( get_option('hpb_import_custom_menu', 1 ), 1 ); ?>><label for="hpb_update_custom_menu">　カスタムメニューを更新する。</label></input></div>
+<div id="hpb_activate_theme"><input type="checkbox" name="activate_theme" id="hpb_activate_theme" value="1" <?php checked( get_option('hpb_activate_theme', 1 ), 1 ); ?>><label for="hpb_activate_theme">　テーマを有効化する。</label></input></div><br/>
 	<input class="button-primary" type="submit" name="do_action" value="データの反映を実行する"></input>
 	<input class="button" type="submit" name="cancel" value="キャンセル"></input>
 	</form>
@@ -180,8 +181,10 @@ function hpb_import_xml( $post ) {
  	if( $xml == false ){
 		return;
 	}
-
-	hpb_change_theme( strval( $xml->theme_dir ) );
+	update_option( 'hpb_activate_theme', $_POST['activate_theme'] );
+	if( $_POST['activate_theme'] == 1 ) {
+		hpb_change_theme( strval( $xml->theme_dir ) );
+	}
 	$blogdescription = esc_html( $xml->blogdescription );
 	update_option( 'blogdescription', $blogdescription );
 	$blogname = esc_html( $xml->blogname );

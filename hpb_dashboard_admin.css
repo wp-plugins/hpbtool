@@ -491,11 +491,6 @@ ul.hpb_option_settings_category {
 
 @media only screen and (max-width:480px) {
 
-/* wp */
-#wpcontent {
-	margin-left:45px;
-}
-
 #footer-left {
 	display:none;
 }

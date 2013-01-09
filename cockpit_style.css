@@ -33,7 +33,8 @@
 }
 
 .cockpit_next_button {
-	padding: 3px 10px 3px 20px !important;
+	padding-left: 20px !important;
+	padding-right: 15px !important;
 }
 
 .confirm_target_site {
