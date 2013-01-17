@@ -29,7 +29,13 @@ function cockpit_init()
 		add_filter( 'manage_pages_columns', array($this, 'cockpit_add_page_columns_name'));
 		add_action( 'manage_pages_custom_column', array($this, 'cockpit_add_page_column'), 10, 2);
 		add_action( 'admin_menu' , array($this, 'cockpit_add_meta_box') );
-		add_action( 'admin_bar_menu', array($this, 'cockpit_add_adminbarmenu'), 500 );
+		if( is_user_logged_in() ){
+			$user = get_userdata( get_current_user_id() );
+			$user_level = (int) $user->user_level;
+			if( $user_level >= 2 ){
+				add_action( 'admin_bar_menu', array($this, 'cockpit_add_adminbarmenu'), 500 );
+			}
+		}
 		add_action( 'admin_print_scripts', array( $this, 'cockpit_before_publishing'), 20);
 	}
 	
