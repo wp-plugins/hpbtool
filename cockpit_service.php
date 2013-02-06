@@ -64,7 +64,7 @@ function cockpit_plugin_update() {
 
 }
 
-function cockpit_publish_post_hook($post_id)
+function cockpit_publish_post_hook($post_id, $future_post = false)
 {
 	if(!$this->is_active_cockpit_acount()){
 		return;
@@ -74,8 +74,7 @@ function cockpit_publish_post_hook($post_id)
 		return;
 	}
 	$post = get_post($post_id);
-	if( $post && ( $_POST['post_status'] == 'publish' && $_POST['original_post_status'] != 'publish' ) || $post->post_status == 'future' ) {
-
+	if( $future_post || ($post && $_POST['post_status'] == 'publish' && $_POST['original_post_status'] != 'publish' )) {
 		$auto_tweet = get_option('cockpit_auto_tweet', 1 );
 		$token = $this->cockpit_get_token($error_token);
 		if($error_token === '' ){
@@ -140,7 +139,7 @@ function cockpit_post_sns_confirm(tw_message, e) {
 			"class": 'button-primary',
 			click : function(){
 				if(jQuery("#cockpit_nolongeropen").is(':checked')){
-					jQuery("#post").append('<input type="hiddeen" name="cockpit_openguide_auto" value="1" />');
+					jQuery("#poststuff").append('<input type="hidden" name="cockpit_openguide_auto" value="1" />');
 				}
 				jQuery(this).dialog('close');
 				e.target.click();
@@ -148,7 +147,7 @@ function cockpit_post_sns_confirm(tw_message, e) {
 			text : "キャンセル",
 			"class": 'button-secondary',
 			click : function(){
-				$post_obj = jQuery("#post");
+				$post_obj = jQuery("#poststuff");
 				$post_obj.append('<input type="hiddeen" name="cockpit_cancel_auto_post" value="1" />');
 				if(jQuery("#cockpit_nolongeropen").is(':checked')){
 					$post_obj.append('<input type="hiddeen" name="cockpit_openguide_auto" value="1" />');
@@ -163,7 +162,9 @@ function cockpit_post_sns_confirm(tw_message, e) {
 
 jQuery( function() {
 	var isCockpitOpened = false;
-	jQuery("#publish[value=<?php _e( 'Publish' ); ?>]").click( function(e){
+	jQuery("input#publish").click( function(e){
+		if(jQuery(this).val() != '<?php _e( 'Publish' ); ?>')
+			return;
 		if(isCockpitOpened)
 			return;
 		isCockpitOpened = true;
@@ -194,7 +195,9 @@ jQuery( function() {
 <script><!--
 jQuery( function() {
 	var isCockpitOpened = false;
-	jQuery("#publish[value=<?php _e( 'Publish' ); ?>]").click( function(e){
+	jQuery("input#publish").click( function(e){
+		if(jQuery(this).val() != '<?php _e( 'Publish' ); ?>')
+			return;
 		if(isCockpitOpened)
 			return;
 		isCockpitOpened = true;
@@ -216,7 +219,7 @@ jQuery( function() {
 				click: function(){
 					jQuery(this).dialog('close');
 					if(jQuery("#cockpit_nolongeropen").is(':checked')){
-						jQuery("#post").append('<input type="hiddeen" name="cockpit_openguide_manual" value="1" />');
+						jQuery("#poststuff").append('<input type="hidden" name="cockpit_openguide_manual" value="1" />');
 					}
 					e.target.click();
 				}
@@ -719,6 +722,15 @@ function cockpit_add_adminbarmenu( &$wp_admin_bar ) {
 
 function cockpit_get_token(&$error, $mail_address = '', $password = '', &$error_code = null) {
 	$token = '';$error = '';
+	
+	$token_last = get_option('cockpit_token_last', '');
+	if( $token_last !== '' ) {
+		$token_last_date = get_option('cockpit_token_last_date', '');
+		if($token_last_date == date_i18n('ymd')){
+			return $token_last;
+		}
+	}
+
 	if($mail_address === '')
 		$mail_address = get_option('cockpit_account');
 	if($password === '')
@@ -750,6 +762,8 @@ function cockpit_get_token(&$error, $mail_address = '', $password = '', &$error_
 				$error = $this->cockpit_get_error_message($status_code, $return);
 				if($return){
 					$token = $return['t'];
+					update_option('cockpit_token_last', $token);
+					update_option('cockpit_token_last_date', date_i18n('ymd'));
 				}
 			}
 		}

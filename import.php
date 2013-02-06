@@ -172,7 +172,8 @@ function hpb_get_pulldown( $status, $type, $id ) {
 	return $content;
 }
 
-function hpb_import_xml( $post ) {
+function hpb_import_xml( $post ) {	
+	update_option( 'hpb_import_custom_menu', $_POST['update_custom_menu'] );
 	$content = file_get_contents( HPB_PLUGINDATA_DIR.'/usercontents.xml' );
 	if( $content == false ){
 		return;
@@ -236,6 +237,20 @@ function hpb_import_xml( $post ) {
 	$checkList = array();
 	$index_xml_item = 0;
 
+	$post_query = array(
+		'post_type' => 'attachment',
+		'numberposts' => -1,
+		'post_status' => null,
+	);
+	$exist_attachments = get_posts( $post_query );
+	$added_attachments = array();
+
+	foreach( $exist_attachments as $attachment ) {
+		$attach_path = get_attached_file( $attachment->ID );
+		array_push($added_attachments, array( $attach_path, $attachment->ID ));
+	}
+
+	$menu_items = wp_get_nav_menu_items( $parent_menu->term_id, array('post_status' => 'any') );
 	$exists = get_pages( array( 'post_status' => array( 'publish', 'pending', 'draft', 'future', 'private', 'inherit' ) ) );
 	foreach ( $xml->item as $item ) {
 		$index_xml_item = $index_xml_item + 1;
@@ -263,11 +278,11 @@ function hpb_import_xml( $post ) {
 				$checkList[ strval( $item->post_type ) ] = 1;
 			}
 		}
+		$user = wp_get_current_user();
 		if( $bexist == false ){
 			if( isset($post['hpb_'.$index_xml_item]) && $post['hpb_'.$index_xml_item] == 'noaction' ) {
 			} else {
 			/* add page */
-			$user = wp_get_current_user();
 			$add_post = array(
 				'post_author'    => strval( $user->id ),
 				'post_title'     => strval( $title ),
@@ -292,7 +307,7 @@ function hpb_import_xml( $post ) {
 			$attachments = $item->attachments;
 			if( $attachments ){
 				foreach( $attachments->children() as $attachment ){
-					hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image );
+					hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image, $exist_attachments, $added_attachments );
 				}
 			}
 			}
@@ -318,7 +333,7 @@ function hpb_import_xml( $post ) {
 			$attachments = $item->attachments;
 			if( $attachments ){
 				foreach( $attachments->children() as $attachment ){
-					hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image );
+					hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image, $exist_attachments, $added_attachments );
 				}
 			}
 
@@ -335,7 +350,6 @@ function hpb_import_xml( $post ) {
 		}
 
 		// custom menu 
-		update_option( 'hpb_import_custom_menu', $_POST['update_custom_menu'] );
 		if( $_POST['update_custom_menu'] == 1 ) {
 			foreach( $item->custom_menu as $menu ){
 				$post_id = strval( $new_page );
@@ -349,7 +363,6 @@ function hpb_import_xml( $post ) {
 				if( $menu->menu_title != '' ) {
 					$menu_title = $menu->menu_title;
 				}
-				$menu_items = wp_get_nav_menu_items( $parent_menu->term_id, array('post_status' => 'any') );
 				foreach( (array) $menu_items as $exist_menu ) {
 					if( $exist_menu->object_id == $post_id ) {
 						$custommenu_db_id = $exist_menu->db_id;
@@ -393,7 +406,7 @@ function hpb_change_theme( $theme_dir ) {
 	}
 }
 
-function hpb_attachment( $id, $post_title, $post_content, $post_excerpt, $post_alt, $file_path, $featured_image ) {
+function hpb_attachment( $id, $post_title, $post_content, $post_excerpt, $post_alt, $file_path, $featured_image, $exist_attachments, &$added_attachments ) {
 	$wp_upload_dir= wp_upload_dir();
 	$filename = $wp_upload_dir[ 'basedir' ].'/'.$file_path;
 
@@ -401,29 +414,16 @@ function hpb_attachment( $id, $post_title, $post_content, $post_excerpt, $post_a
 	if( !file_exists( $filename ) ){
 		return;
 	}
-
-	$post_query = array(
-		'post_type' => 'attachment',
-		'numberposts' => -1,
-		'post_status' => null,
-	);
 	global $wpdb;
 	global $wp_version;
 	$attach_id = 0;
-	$attachments = get_posts( $post_query );
-	foreach( $attachments as $attachment ) {
-		$attach_path = get_attached_file( $attachment->ID );
-		if( $attach_path == $filename ) {
-			if($attach_id != 0 ){
-				if($wp_version >= 3.4 && $wp_version < 3.5){
-					hpb_delete_attachment($attachment->ID);
-				}
-			} else {
-				$attach_id = $attachment->ID;
+	if( $attach_id == 0 ){
+		foreach( $added_attachments as $added_attachment ) {
+			if( $added_attachment[0] == $filename ) {
+				$attach_id = $added_attachment[1];
 			}
 		}
 	}
-
 	if( $attach_id == 0 ) {
 		$wp_filetype = wp_check_filetype( $filename, null );
 		$attachment = array(
@@ -439,8 +439,8 @@ function hpb_attachment( $id, $post_title, $post_content, $post_excerpt, $post_a
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 		update_post_meta( $attach_id, '_wp_attachment_image_alt', strval($post_alt) );
+		array_push($added_attachments, array( $filename, $attach_id, ));
 	}
-	//thumbnail 
 	if( $featured_image == '1' ) {
 		add_post_meta($id, '_thumbnail_id', $attach_id, true);
 	}

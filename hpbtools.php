@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.1.4
+Version: 1.1.5
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb17_wp_hpbdash
 */
@@ -47,6 +47,19 @@ function hpb_admin_home() {
 		hpb_guidance_activate_multibyte_patch();
 		hpb_guidance_new_post();
 		hpb_dashboard_widget_function();
+		$p1 = 0;
+		if( get_option('hpb_hide_menus', 1 ) == 1 ) {
+			$p1 = 1;
+		}
+		$p2 = 0;
+		if( get_option('cockpit_activate') == 1 ) {
+			$p2 = 1;
+		}
+		$p3 = home_url();
+		$get_url_withargs = 'https://tracker.web-cockpit.jp/images/ccptplgin.gif?p1='.$p1.'&p2='.$p2.'&p3='.$p3;
+		wp_remote_get( $get_url_withargs, 
+				array(
+				'sslverify' => false,));
 	}
 ?>
 </div>
