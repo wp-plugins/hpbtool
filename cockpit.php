@@ -1,9 +1,9 @@
 <?php
 
 add_action('init', 'hpbtool_cockpit_init');
-add_action( 'publish_future_post', 'cockpit_future_publish_hook');
+add_action( 'publish_future_post', 'hpb_cockpit_future_publish_hook');
 
-function cockpit_future_publish_hook($post_id) {
+function hpb_cockpit_future_publish_hook($post_id) {
    if(!class_exists('CockpitManager')){
 	require_once HPB_PLUGIN_DIR.'/cockpit_service.php';
 	$cockpitManager = new CockpitManager('', plugins_url( '', __FILE__ ).'/image/admin/icon_hpb.png'); 
