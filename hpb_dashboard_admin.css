@@ -884,3 +884,11 @@ ul.hpb_option_settings_category {
 #hpb_just_account_logo {
 	margin: 5px 0px 5px 0px;
 }
+
+/* annotation */
+
+.annotation {
+	color: #0000ff;
+	padding-left: 1em;
+	text-indent: -1em;
+}

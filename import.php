@@ -336,11 +336,10 @@ function hpb_import_xml( $post ) {
 					hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image, $exist_attachments, $added_attachments );
 				}
 			}
-
+			}
 			/* delete custom menu */		
 			if( $_POST['update_custom_menu'] == 1 ) {
 				_wp_delete_post_menu_item($new_page);
-			}
 			}
 		}
 

@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.1.6
+Version: 1.1.7
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb17_wp_hpbdash
 */
@@ -272,6 +272,7 @@ function hpb_dashborad_widget_option() {
 	<form method="post" action="options.php">
 	<?php wp_nonce_field('update-options'); ?>
 	<table class="hpb_form_table">
+	<tr><td colspan="2"><div class="annotation">※「カスタマイズ項目」については、サポートサービスを行っていません。<br/>「カスタマイズ項目」をONにして使用したり、「すべてのメニュー」を選択した場合は、サポート対象外となりますので、ご了承ください。</div></td></tr>
 	<tr><td>メニューのカスタマイズ</td> 
 	<td><input type="radio" name="hpb_hide_menus" value="1" <?php checked( get_option('hpb_hide_menus', 1 ), 1 ); ?>> かんたんメニュー
 	<p class="indent1">サイト更新によく使う機能をまとめたメニューです。WordPressを初めてお使いの方にお勧めです。<br/>用途に応じて、表示する項目をカスタマイズすることもできます。</p>
