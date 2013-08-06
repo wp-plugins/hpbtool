@@ -127,7 +127,7 @@ function cockpit_post_sns_confirm(tw_message, e) {
 	div_dialog.dialog({
 		autoOpen: false,
 		title: 'コックピット',
-		dialogClass: 'dialog_cockpit_post_confirm',
+		dialogClass: 'dialog_cockpit_post_confirm wp-dialog',
 		closeOnEscape: false,
 		width: 600,
 		height: 515,
@@ -206,7 +206,7 @@ jQuery( function() {
 		div_dialog.dialog({
 			autoOpen: false,
 			title: 'コックピット',
-			dialogClass: 'dialog_cockpit_post_confirm',
+			dialogClass: 'dialog_cockpit_post_confirm wp-dialog',
 			closeOnEscape: false,
 			width: 600,
 			height: 550,
