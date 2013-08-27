@@ -2,43 +2,81 @@
 
 function hpb_access_analysis_page() {
 
-	if ($_POST[ 'addSite' ] == "1") {
+	$hpb_is_addSite = false;
+	$hpb_is_deleteSite = false;
+	$hpb_is_changeAccount = false;
+	$hpb_is_aa = false;
+	if (isset($_POST[ 'addSite' ]) && $_POST[ 'addSite' ] == "1") {
 		update_option('hpb_access_acount', $_POST['hpb_access_acount']);
 		update_option('hpb_access_password', $_POST['hpb_access_password']);
 		$hpb_response = hpb_add_site_access_analysis();
-	} 
-	if ($_POST[ 'deleteSite' ] == "1") {
+		$hpb_is_addSite = true;
+	} elseif (isset($_POST[ 'deleteSite' ]) && $_POST[ 'deleteSite' ] == "1") {
 		update_option('hpb_access_acount', $_POST['hpb_access_acount']);
-		update_option('hpb_access_password', $_POST['hpb_access_password']);	
+		update_option('hpb_access_password', $_POST['hpb_access_password']);
 		$hpb_response = hpb_delete_site_access_analysis();
-	} 
-	$response_hpb_get_access_analysis_id;
-	$id_aa = hpb_get_access_analysis_id( $response_hpb_get_access_analysis_id );
-	$hpb_is_aa = hpb_is_access_analysis( $id_aa );
-	$hpb_site_id = hpb_get_site_id( $id_aa, get_bloginfo( 'url' ) );
+		$hpb_is_deleteSite = true;
+	} else {
+		if (isset($_POST[ 'changeAccount' ]) && $_POST[ 'changeAccount' ] == "1") {
+			update_option('hpb_access_acount', $_POST['hpb_access_acount']);
+			update_option('hpb_access_password', $_POST['hpb_access_password']);
+			$hpb_is_changeAccount = true;
+		}
+		if (get_option( 'hpb_site_id', 0 ) != 0) {
+			$hpb_is_aa = true;
+		}
+	}
+	$ErrorMessage;
+	$statusCode = 0;
+	$id_aa = hpb_get_access_analysis_id( $ErrorMessage, $statusCode );
+	$hpb_site_id = hpb_get_site_id( $id_aa, get_bloginfo( 'url' ), $ErrorMessage, $statusCode );
 	wp_enqueue_style('hpb_dashboard_admin', HPB_PLUGIN_URL.'/hpb_dashboard_admin.css');
 	wp_enqueue_script( 'jquery' );
 ?>
 	<div id="hpb_dashboard_body">
 	<div id="hpb_dashboard_title" class="wrap"><h2><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/icon_hpb.png';?>">アクセス解析設定</h2></div>
 <?php
-	if ($_POST[ 'addSite' ] == "1") {
+	if ( $statusCode == -1 || $statusCode == 101 ) {
 ?>
 	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">
 <?php
-		echo $hpb_response.'</div>';
-	} 
-	if ($_POST[ 'deleteSite' ] == "1") {
+		echo $ErrorMessage;
 ?>
-	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">
+	</div>
 <?php
-		echo $hpb_response.'</div>';
-	} 
-	if( $hpb_is_aa == false ) {
-		$chkmessage = 'アクセス解析を設定します。よろしいですか？';
 	} else {
-		$chkmessage = アクセス解析を解除します。よろしいですか？アクセス解析を解除すると今までの解析情報はすべて削除されます。;
-	}
+		if ($hpb_is_addSite) {
+?>
+	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">
+<?php
+			echo $hpb_response.'</div>';
+			if ( $hpb_site_id != '' ) {
+				$hpb_is_aa = true;
+			}
+ 		} else if ($hpb_is_deleteSite) {
+?>
+	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">
+<?php
+			echo $hpb_response.'</div>';
+		} else if ( $statusCode != 0 && get_option('hpb_access_acount') != '') {
+?>
+	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">
+<?php
+			echo $ErrorMessage.'</div>';
+		} else if ( $statusCode == 0 && $hpb_is_changeAccount == true ) {
+?>
+	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">Justアカウントを再設定しました。</div>
+<?php
+		}
+		if( $hpb_is_aa == false ) {
+			$chkmessage = 'アクセス解析を設定します。よろしいですか？';
+		} else {
+			if ( $statusCode == 0 ) {
+				$chkmessage = 'アクセス解析を解除します。よろしいですか？アクセス解析を解除すると今までの解析情報はすべて削除されます。';
+			} else {
+				$chkmessage = 'Justアカウントを再設定します。よろしいですか？';
+			}
+		}
 ?>
 	<script><!--
 		jQuery('#check_access_analysis').hide();
@@ -46,29 +84,45 @@ function hpb_access_analysis_page() {
 	<form method="post" action="<?php echo str_replace('%7E', '~', $_SERVER['REQUEST_URI']); ?>" autocomplete="off" onsubmit="if( confirm('<?php echo $chkmessage; ?>') ) return true; return false;">
 	<?php wp_nonce_field('update-options'); ?>
 <?php
-	if($hpb_is_aa){
-	} else {
-		echo '<p>アクセス解析サービスのアカウント設定を行い、サイトをアクセス解析の対象に設定します。</p><div id="hpb_aa_service_start"><div class="hpb_caption">サービスの利用手続き</div><p>下のボタンをクリックして、「かんたんアクセス解析」の利用手続きを行います。</p><p><a class="button" href="https://kantan-access.com/apply/index.html" target="_blank">かんたんアクセス解析の利用手続き</a></p></div>';
-	}
+		if ( $hpb_is_aa ) {
+			if ( $hpb_site_id != '' ) {
+				$hpb_is_readonly = true;
+			} else {
+				$hpb_is_readonly = false;
+			}
+		} else {
+			echo '<p>アクセス解析サービスのアカウント設定を行い、サイトをアクセス解析の対象に設定します。</p><div id="hpb_aa_service_start"><div class="hpb_caption">サービスの利用手続き</div><p>下のボタンをクリックして、「かんたんアクセス解析」の利用手続きを行います。</p><p><a class="button" href="https://kantan-access.com/apply/index.html" target="_blank">かんたんアクセス解析の利用手続き</a></p></div>';
+			$hpb_is_readonly = false;
+		}
 ?>
 	<div class="hpb_caption">アカウント設定</div>
 	<p>Justアカウントに登録したメールアドレスとパスワードを入力します。<br/>Justアカウントについて詳しくは <a href="http://account.justsystems.com/jp/about.html" target="_blank">こちら</a> をご覧ください。
 	<div id="hpb_aa_acount_form">
 	<img id="hpb_just_account_logo" src="<?php echo HPB_PLUGIN_URL.'/image/admin/just_account.png';?>"/>
 	<table class="hpb_form_table">
-	<tr><td>メールアドレス</td><td><input size="60" type="text" name="hpb_access_acount" value="<?php echo get_option('hpb_access_acount'); ?>" <?php if($hpb_is_aa){ echo 'readonly';}?>/></td></tr>
-	<tr><td>パスワード</td><td><input size="60" type="password" name="hpb_access_password" value="<?php echo get_option('hpb_access_password'); ?>" <?php if($hpb_is_aa){ echo 'readonly';}?>/></td></tr>
+	<tr><td>メールアドレス</td><td><input size="60" type="text" name="hpb_access_acount" value="<?php echo get_option('hpb_access_acount'); ?>" <?php if($hpb_is_readonly){ echo 'readonly';}?>/></td></tr>
+	<tr><td>パスワード</td><td><input size="60" type="password" name="hpb_access_password" value="<?php echo get_option('hpb_access_password'); ?>" <?php if($hpb_is_readonly){ echo 'readonly';}?>/></td></tr>
 	</table></div>
 	<input type="hidden" name="permission" value="0"/>
 <?php 
-	if( $hpb_is_aa == false ) {
-		update_option( 'hpb_site_id', 0 ); 
-		echo '<input type="hidden" name="addSite" value="1">
-		<p class="submit"><input class="button-primary" type="submit" name="submit" value="サイトをアクセス解析対象に設定"</p></form>'; 
-	} else {
-		update_option( 'hpb_site_id', strval( $hpb_site_id ) ); 
-		echo '<input type="hidden" name="deleteSite" value="1">
-		<p class="submit"><input class="button-primary" type="submit" name="submit" value="サイトをアクセス解析対象から解除"/></p></form>';
+		if( $hpb_is_aa == false ) {
+			if ( $hpb_is_deleteSite == true ) {
+				update_option( 'hpb_site_id', 0 ); 
+			}
+			echo '<input type="hidden" name="addSite" value="1">
+			<p class="submit"><input class="button-primary" type="submit" name="submit" value="サイトをアクセス解析対象に設定"</p></form>'; 
+		} else {
+			if ( $hpb_is_addSite == true || ( $hpb_is_changeAccount == true && $hpb_site_id != '' ) ) {
+				update_option( 'hpb_site_id', strval( $hpb_site_id ) );
+			}
+			if ( $statusCode == 0 ){
+				echo '<input type="hidden" name="deleteSite" value="1">
+				<p class="submit"><input class="button-primary" type="submit" name="submit" value="サイトをアクセス解析対象から解除"/></p></form>';
+			} else {
+				echo '<input type="hidden" name="changeAccount" value="1">
+				<p class="submit"><input class="button-primary" type="submit" name="submit" value="Justアカウントの再設定"/></p></form>';
+			}
+		}
 	}
 ?>
 </div>
@@ -93,11 +147,15 @@ function hpb_delete_site_access_analysis() {
 	$uri = 'http://webservice2.jana.justsystems.com';
 	$sm_location = 'https://kantan-access.com/jana_webservice2/services/SiteManager';
 	$response_hpb_get_access_analysis_id;
-	$id_aa = hpb_get_access_analysis_id( $response_hpb_get_access_analysis_id );
+	$id_aa = hpb_get_access_analysis_id( $response_hpb_get_access_analysis_id, $statusCode );
 	if( $id_aa == '' ) {
 		return $response_hpb_get_access_analysis_id;
 	}
-	$site_id = hpb_get_site_id( $id_aa, get_bloginfo( 'url' ) );
+	$statusCode = 0;
+	$site_id = hpb_get_site_id( $id_aa, get_bloginfo( 'url' ), $ErrorMessage, $statusCode );
+	if ( $statusCode != 0 ){
+		return $ErrorMessage;
+	}
 	$request = '<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<soapenv:Body>
@@ -132,7 +190,7 @@ function hpb_delete_site_access_analysis() {
 	$response = '';
 	if( $elm->statusCode == 0 || $elm->statusCode == 20300 ) {
 		$response = 'かんたんアクセス解析の解析対象に登録したサイトを、解析対象から外しました。';
-        } else {
+	} else {
 		$response = $elm->statusMessage;
 	}
 	return $response;
@@ -141,10 +199,10 @@ function hpb_delete_site_access_analysis() {
 function hpb_add_site_access_analysis() {
 	$uri = 'http://webservice2.jana.justsystems.com';
 	$sm_location = 'https://kantan-access.com/jana_webservice2/services/SiteManager';
-	$response_hpb_get_access_analysis_id;
-	$id_aa = hpb_get_access_analysis_id( $response_hpb_get_access_analysis_id );
+	$ErrorMessage;
+	$id_aa = hpb_get_access_analysis_id( $ErrorMessage, $statusCode );
 	if( $id_aa == '' ) {
-		return $response_hpb_get_access_analysis_id;
+		return $ErrorMessage;
 	}
 	$site_name = get_bloginfo('name');
 	if( $site_name == '' ) {
@@ -188,9 +246,13 @@ function hpb_add_site_access_analysis() {
 	if( $elm->statusCode == 0 ) {
 		$response = 'サイトをかんたんアクセス解析の解析対象に設定しました。<a href="https://kantan-access.com/jana_webapp/login.do" target="_blank">アクセス解析ページを表示</a>';
 	} else if( $elm->statusCode == 20303 || $elm->statusCode == 20304 ) {
-		$site_id = hpb_get_Site_Id( $id_aa, get_bloginfo( 'url' ) );
+		$statusCode = 0;
+		$site_id = hpb_get_site_id( $id_aa, get_bloginfo( 'url' ), $ErrorMessage, $statusCode );
 		if( $site_id  == '' ) {
-			return $response = '同じサイト名のサイトがすでに登録されています。サイト名を変更するか、登録されているサイトの登録を解除してください。';
+			if ( $statusCode == -1 || $statusCode == 100 || $statusCode == 101 ) {
+				return $ErrorMessage;
+			}
+			return '同じサイト名のサイトがすでに登録されています。サイト名を変更するか、登録されているサイトの登録を解除してください。';
 		} else {
 			$response = 'サイトをかんたんアクセス解析の解析対象に設定しました。<a href="https://kantan-access.com/jana_webapp/login.do" target="_blank">アクセス解析ページを表示</a>';
 		}
@@ -200,7 +262,7 @@ function hpb_add_site_access_analysis() {
 	return $response;
 }
 
-function hpb_get_access_analysis_id( &$ErrorMessage ) {
+function hpb_get_access_analysis_id( &$ErrorMessage, &$statusCode ) {
 	$hpb_access_acount = get_option('hpb_access_acount');
 	$hpb_access_password = get_option('hpb_access_password');
 	$uri = 'http://webservice2.jana.justsystems.com';
@@ -227,7 +289,8 @@ function hpb_get_access_analysis_id( &$ErrorMessage ) {
 					));
 	if(is_wp_error($res)){
 		$ErrorMessage = $res->get_error_message();
-		return  $id;
+		$statusCode = 100;
+		return  '';
 	}
 	$res = wp_remote_retrieve_body($res);
 	$res_xml = simplexml_load_string( $res );
@@ -235,15 +298,36 @@ function hpb_get_access_analysis_id( &$ErrorMessage ) {
 	$elm = $elm->children( 'http://webservice2.jana.justsystems.com' );
 	$elm = $elm->children( '' );
 	$elm = $elm->children( '' );
-	$id = $elm->serviceTickets->item->id;
+	$statusCode = $elm->statusCode;
+	if ( $statusCode != 0 ) {
+		$ErrorMessage = hpb_get_statusmessage( $statusCode );
+		return '';
+	}
+	foreach ( $elm->serviceTickets->item as $item ) {
+		if( $item->status != 1 && $item->status != 2 ) {
+			continue;
+		}
+		if( hpb_is_access_analysis( $item->id, $ErrorMessage, $statusCode ) == true ) {
+			$id = $item->id;
+			break;
+		}
+		if( $statusCode != 0 ) {
+			return '';
+		}
+		if( intval( $item->siteCount ) < intval( $item->maxSiteCount ) ){
+			$id = $item->id;
+		}
+	}
 	if( $id == '' ) {
-		$ErrorMessage = hpb_get_statusmessage( $elm->statusCode );
+		$ErrorMessage = 'サービス利用権は存在しません。';
 	}
 	return $id; 
 }
 
 function hpb_get_statusMessage( $statusCode ) {
-	if( $statusCode == 100 ) {
+	if( $statusCode == -1 ){
+		return '通信エラーが発生しました。しばらく待ってから再度お試しください。';
+ 	} else if( $statusCode == 100 ) {
 		return '内部的なエラーが発生しました。';
 	} else if( $statusCode == 101 ) {
 		return 'サービスはメンテナンス中です。';
@@ -282,15 +366,15 @@ function hpb_get_statusMessage( $statusCode ) {
 	}
 }
 
-function hpb_is_access_analysis( $id_aa ) {
+function hpb_is_access_analysis( $id_aa, &$ErrorMessage, &$statusCode ) {
 	if( $id_aa == '' ) {
 		return false;
 	}
-	$site_id = hpb_get_site_id( $id_aa, get_bloginfo( 'url' ) );
+	$site_id = hpb_get_site_id( $id_aa, get_bloginfo( 'url' ), $ErrorMessage, $statusCode );
 	return $site_id != '';
 }
 
-function hpb_get_site_id( $id_aa, $url ) {
+function hpb_get_site_id( $id_aa, $url, &$ErrorMessage, &$statusCode ) {
 	if( $id_aa == '' ) {
 		return;
 	}
@@ -318,6 +402,8 @@ function hpb_get_site_id( $id_aa, $url ) {
 					'body' => $request,
 					));
 	if(is_wp_error($res)){
+		$statusCode = -1;
+		$ErrorMessage = hpb_get_statusmessage( $statusCode );
 		return  '';
 	}
 	$res = wp_remote_retrieve_body($res);
@@ -326,6 +412,11 @@ function hpb_get_site_id( $id_aa, $url ) {
 	$elm = $elm->children( 'http://webservice2.jana.justsystems.com' );
 	$elm = $elm->children( '' );
 	$elm = $elm->children( '' );
+	$statusCode = $elm->statusCode;
+	if ( $statusCode != 0 ) {
+		$ErrorMessage = hpb_get_statusmessage( $statusCode );
+		return '';
+	}
 	foreach( $elm->sites->item as $item ){
 		if( $item->url == $url ){
 			return $item->id;
