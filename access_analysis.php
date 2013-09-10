@@ -304,7 +304,7 @@ function hpb_get_access_analysis_id( &$ErrorMessage, &$statusCode ) {
 		return '';
 	}
 	foreach ( $elm->serviceTickets->item as $item ) {
-		if( $item->status != 1 && $item->status != 2 ) {
+		if( $item->status != 0 && $item->status != 1 && $item->status != 2 ) {
 			continue;
 		}
 		if( hpb_is_access_analysis( $item->id, $ErrorMessage, $statusCode ) == true ) {
