@@ -41,7 +41,7 @@ function hpb_import_page() {
  		if( $xml == false ){
 			return;
 		}
-		if( $_GET['imported'] == 'true' ) {
+		if( isset($_GET['imported']) && $_GET['imported'] == 'true' ) {
 ?>
 <div class="submit hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">データを反映しました。サイトを確認してみましょう。<a href="<?php echo home_url(); ?>" target="_blank" class="button-primary">サイトを見る</a></div>
 <?php
@@ -190,6 +190,21 @@ function hpb_import_xml( $post ) {
 	update_option( 'blogdescription', $blogdescription );
 	$blogname = esc_html( $xml->blogname );
 	update_option( 'blogname', $blogname );
+
+	$version = $xml['version'];
+	if ( $version == '' ) {
+		$compmode = true;
+	} else {
+		$vlist = explode( ".", $version );
+		$major = intval( $vlist[0] );
+		$minor = intval( $vlist[1] );
+		if ( $major < 1 || ( $major == 1 && $minor < 1 ) ) {
+			$compmode = true;
+		} else {
+			$compmode = false;
+		}
+	}
+
 	//create nav menu
 	$menus = array(); 
 	foreach ( $xml->menu as $menu ) {
@@ -252,143 +267,255 @@ function hpb_import_xml( $post ) {
 
 	$menu_items = wp_get_nav_menu_items( $parent_menu->term_id, array('post_status' => 'any') );
 	$exists = get_pages( array( 'post_status' => array( 'publish', 'pending', 'draft', 'future', 'private', 'inherit' ) ) );
+	$exist_pages = array();
+	foreach ( $exists as $exist ) {
+		if( get_post_status( $exist->ID ) != 'trash' && ! $exist_pages[ $exist->post_title ] ) {
+			$exist_pages[ $exist->post_title ] = $exist;
+		}
+	}
+
 	foreach ( $xml->item as $item ) {
 		$index_xml_item = $index_xml_item + 1;
 		$new_page = 0;
 		$bexist = false;
 		$title = esc_html( $item->title );
-		if( $item->post_type == 'page' ){
-			foreach ( $exists as $exist ){
-				if( get_post_status( $exist->ID ) != 'trash' ) {
-					if( $exist->post_title == $title || $exist->post_title == $item->title ){
-						$bexist = true;
-						$new_page = $exist->ID;			
+		$post_parent = '';
+		if ( $item->title ) {
+			if ( $item->post_type == 'page' ) {
+				$exist_page = $exist_pages[ $title ];
+				if ( ! $exist_page ){
+					$exist_page = $exist_pages[ strval( $item->title ) ];
+				}
+				if ( $exist_page ){
+					$bexist = true;
+					$new_page = $exist_page->ID;
+				}
+			}
+			if ( $item->post_parent != '' )
+			{
+				$parent = get_page_by_title($item->post_parent);
+				if($parent){
+					$post_parent = $parent->ID;
+				}
+			}
+
+			if ( $item->post_type != 'post' && $item->post_type != 'page') {
+				$custom_post_query = array(
+						'post_type' => strval( $item->post_type )
+				);		
+				$custom_type_posts = get_posts( $custom_post_query );
+				if( count( $custom_type_posts ) > 0 && $checkList[ strval( $item->post_type ) ]!=1 ){
+					continue;
+				} else {
+					$checkList[ strval( $item->post_type ) ] = 1;
+				}
+			}
+			$user = wp_get_current_user();
+			if ( $bexist == false ) {
+				if( isset($post['hpb_'.$index_xml_item]) && $post['hpb_'.$index_xml_item] == 'noaction' ) {
+				} else {
+					/* add page */
+					$add_post = array(
+						'post_author'    => strval( $user->ID ),
+						'post_title'     => strval( $title ),
+						'post_status'    => strval( $item->status ),
+						'comment_status' => strval( $item->comment_status ),
+						'ping_status'    => strval( $item->ping_status ),
+						'post_name'      => strval( $item->post_name ),
+						'post_content'   => strval( $item->content ),
+						'post_type'      => strval( $item->post_type ),
+						'post_parent'	 => strval( $post_parent )
+					);
+					$new_page = wp_insert_post( $add_post );
+					if ( $new_page != 0 && $item->status != 'trash' ) {
+						$exist_pages[ $title ] = get_post( $new_page );
+					}
+					if ( $new_page != 0 && $item->template_name != '' ) {
+						update_post_meta( $new_page, '_wp_page_template', strval( $item->template_name ) );
+					}
+
+					//taxonomy
+					foreach ( $item->term_category as $category ) {
+						wp_set_object_terms( $new_page, strval( $category->nicename ), strval( $category->taxonomy ) );
+					}
+
+					//attachment
+					$attachments = $item->attachments;
+					if ( $attachments ){ 
+						foreach ( $attachments->children() as $attachment ) {
+							hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image, $exist_attachments, $added_attachments );
+						}
 					}
 				}
-			}
-		}
-		if( $item->post_type != 'post' && $item->post_type != 'page' ){
-			$custom_post_query = array(
-					'post_type' => strval( $item->post_type )
-			);		
-			$custom_type_posts = get_posts( $custom_post_query );
-			if( count( $custom_type_posts ) > 0 && $checkList[ strval( $item->post_type ) ]!=1 ){
-				continue;
-			} else {
-				$checkList[ strval( $item->post_type ) ] = 1;
-			}
-		}
-		$user = wp_get_current_user();
-		if( $bexist == false ){
-			if( isset($post['hpb_'.$index_xml_item]) && $post['hpb_'.$index_xml_item] == 'noaction' ) {
-			} else {
-			/* add page */
-			$add_post = array(
-				'post_author'    => strval( $user->id ),
-				'post_title'     => strval( $title ),
-				'post_status'    => strval( $item->status ),
-				'comment_status' => strval( $item->comment_status ),
-				'ping_status'    => strval( $item->ping_status ),
-				'post_name'      => strval( $item->post_name ),
-				'post_content'   => strval( $item->content ),
-				'post_type'      => strval( $item->post_type )
-			);
-			$new_page = wp_insert_post( $add_post );
-			if( $new_page != 0 && $item->template_name != '' ){
-				update_post_meta( $new_page, '_wp_page_template', strval( $item->template_name ) );
-			}
-
-			//taxonomy
-			foreach( $item->term_category as $category ){
-				wp_set_object_terms( $new_page, strval( $category->nicename ), strval( $category->taxonomy ) );
-			}
-
-			//attachment
-			$attachments = $item->attachments;
-			if( $attachments ){
-				foreach( $attachments->children() as $attachment ){
-					hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image, $exist_attachments, $added_attachments );
+				/* delete custom menu */
+				if( $_POST['update_custom_menu'] == 1 ) {
+					_wp_delete_post_menu_item( $new_page );
 				}
 			}
-			}
-		}
-		if( $bexist == true && $new_page != 0 ){
-			if( isset($post[strval($new_page)]) && $post[strval($new_page)] == 'noaction' ){
-			} else {
-			/* update page */
-			$update_post = array(
-				'ID'             => $new_page,
-				'post_author'    => strval( $user->id ),
-				'post_title'     => strval( $title ),
-				'post_status'    => strval( $item->status ),
-				'comment_status' => strval( $item->comment_status ),
-				'ping_status'    => strval( $item->ping_status ),
-				'post_content'   => strval( $item->content ),
-				'post_type'      => strval( $item->post_type )
-			);
-			wp_update_post( $update_post );
-			update_post_meta( $new_page, '_wp_page_template', strval( $item->template_name ) );
-				
-			//attachment
-			$attachments = $item->attachments;
-			if( $attachments ){
-				foreach( $attachments->children() as $attachment ){
-					hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image, $exist_attachments, $added_attachments );
+			if ( $bexist == true && $new_page != 0 ) {
+				if ( isset($post[strval($new_page)]) && $post[strval($new_page)] == 'noaction' ) {
+				} else {
+					/* update page */
+					$update_post = array(
+						'ID'             => $new_page,
+						'post_author'    => strval( $user->ID ),
+						'post_title'     => strval( $title ),
+						'post_status'    => strval( $item->status ),
+						'comment_status' => strval( $item->comment_status ),
+						'ping_status'    => strval( $item->ping_status ),
+						'post_content'   => strval( $item->content ),
+						'post_type'      => strval( $item->post_type ),
+						'post_parent'	 => strval( $post_parent )
+					);
+					wp_update_post( $update_post );
+					update_post_meta( $new_page, '_wp_page_template', strval( $item->template_name ) );
+						
+					//attachment
+					$attachments = $item->attachments;
+					if ( $attachments ) {
+						foreach ( $attachments->children() as $attachment ) {
+							hpb_attachment( $new_page, $attachment->post_title, $attachment->post_content, $attachment->post_caption, $attachment->post_alt, $attachment->file_path, $attachment->featured_image, $exist_attachments, $added_attachments );
+						}
+					}
+				}
+				/* delete custom menu */		
+				if ( $_POST['update_custom_menu'] == 1 ) {
+					_wp_delete_post_menu_item($new_page);
 				}
 			}
-			}
-			/* delete custom menu */		
-			if( $_POST['update_custom_menu'] == 1 ) {
-				_wp_delete_post_menu_item($new_page);
+
+			if ( $new_page != 0 && $item->front_page == 1 ) {
+				update_option( 'page_on_front', $new_page );
+				update_option( 'page_for_posts', 0 );
+				update_option( 'show_on_front', 'page' );
 			}
 		}
-
-		if( $new_page != 0 && $item->front_page == 1 ){
-			update_option( 'page_on_front', $new_page );
-			update_option( 'show_on_front', 'page' );
-		}
-
 		// custom menu 
-		if( $_POST['update_custom_menu'] == 1 ) {
+		if ( $compmode == true && $_POST['update_custom_menu'] == 1 ) {
 			foreach( $item->custom_menu as $menu ){
 				$post_id = strval( $new_page );
 				if( $post_id == 0 ) {
 					continue;
 				}
-
-				$custommenu_db_id = 0;
 				$parent_menu = $menus[ strval( $menu->parent_menu ) ];
 				$menu_title = strval( $title );
 				if( $menu->menu_title != '' ) {
 					$menu_title = $menu->menu_title;
 				}
-				foreach( (array) $menu_items as $exist_menu ) {
-					if( $exist_menu->object_id == $post_id ) {
-						$custommenu_db_id = $exist_menu->db_id;
-					}
-				}
 			
 				if( $parent_menu ){
 					$new = array(
-					'menu-item-db-id'       => $custommenu_db_id,
-					'menu-item-object-id'   => strval( $new_page ),
-					'menu-item-object'      => 'page',
-					'menu-item-parent-id'   => 0,
-					'menu-item-position'    => $menu->menu_order,
-					'menu-item-type'        => 'post_type',
-					'menu-item-title'       => $menu_title,
-					'menu-item-url'         => '',
-					'menu-item-description' => '',
-					'menu-item-attr-title'  => '',
-					'menu-item-status'      => 'publish',
-				);
-				wp_update_nav_menu_item( $parent_menu->term_id , $custommenu_db_id, $new );
+						'menu-item-db-id'       => 0,
+						'menu-item-object-id'   => strval( $new_page ),
+						'menu-item-object'      => 'page',
+						'menu-item-parent-id'   => 0,
+						'menu-item-position'    => $menu->menu_order,
+						'menu-item-type'        => 'post_type',
+						'menu-item-title'       => $menu_title,
+						'menu-item-url'         => '',
+						'menu-item-description' => '',
+						'menu-item-attr-title'  => '',
+						'menu-item-status'      => 'publish',
+					);
+					wp_update_nav_menu_item( $parent_menu->term_id , 0, $new );
 				}
 			}
 		}
 	}
-	update_option('hpb_plugin_last_imported', strval( $xml->date ));
+	if ( $compmode == false && $_POST['update_custom_menu'] == 1 ) {
+		// delete link menu by hpb
+	 	$deletelinkmenulistids  = explode( ',', get_option( 'hpb_plugin_linkmenu_byhpb', '') );
+		foreach ( $deletelinkmenulistids as $deletelinkmenulistid ) {
+			if ( $deletelinkmenulistid != '' ) {
+				wp_delete_post( $deletelinkmenulistid );
+			}
+		}
+
+		// custom url menu array
+		$linkmenulist = array();
+
+		foreach ( $xml->menu as $menu ) {
+			$parent_menu = $menus[ strval( $menu->name ) ];
+			hpb_make_menu( $menu, $parent_menu, 0, $exist_pages, $menu_items, $linkmenulist );
+		}
+
+		$linkmenulistids = '';
+		foreach ( $linkmenulist as $linkmenulistid ) {
+			$linkmenulistids .= $linkmenulistid.',';
+		}
+		update_option( 'hpb_plugin_linkmenu_byhpb', $linkmenulistids );
+	}
+
+	update_option( 'hpb_plugin_last_imported', strval( $xml->date ) );
 	return true;
+}
+
+function hpb_make_menu( &$menu, &$parent_menu, $parent_id, &$exist_pages, &$menu_items, &$linkmenulist ) {
+
+	if ( $parent_menu ) {
+		$pos = 1;
+		foreach ( $menu->menu_item as $menu_item ) {
+			$menu_item_id = $parent_id;
+			if ( $menu_item->type == 'page' ) {
+				$name = esc_html( $menu_item->page );
+				$exist_page = $exist_pages[ $name ];
+				if ( ! $exist_page ) {
+					$exist_page = $exist_pages[ strval( $menu_item->page ) ];
+				}
+				if ( $exist_page ){
+					$post_id = strval( $exist_page->ID );
+					$title = strval( $menu_item->title );
+					if ( $title == '' ) {
+						$title = strval( $exist_page->title );
+					}
+					$custommenu_db_id = 0;
+					foreach( (array) $menu_items as $exist_menu ) {
+						if( $exist_menu->object_id == $post_id ) {
+							$custommenu_db_id = $exist_menu->db_id;
+						}
+					}
+					$new = array(
+						'menu-item-db-id'       => $custommenu_db_id,
+						'menu-item-object-id'   => $post_id,
+						'menu-item-object'      => 'page',
+						'menu-item-parent-id'   => $parent_id,
+						'menu-item-position'    => $pos,
+						'menu-item-type'        => 'post_type',
+						'menu-item-title'       => $title,
+						'menu-item-url'         => '',
+						'menu-item-description' => '',
+						'menu-item-attr-title'  => '',
+						'menu-item-status'      => 'publish',
+					);
+					$menu_item_id = wp_update_nav_menu_item( $parent_menu->term_id , $custommenu_db_id, $new );
+					$pos ++;
+				}
+			} else if ( $menu_item->type == 'url' ) {
+				if ( $menu_item->title != '' && $menu_item->url != '' ) {
+					$new = array(
+						'menu-item-db-id'       => 0,
+						'menu-item-object-id'   => 0,
+						'menu-item-object'      => '',
+						'menu-item-parent-id'   => $parent_id,
+						'menu-item-position'    => $pos,
+						'menu-item-type'        => 'custom',
+						'menu-item-title'       => strval( $menu_item->title ),
+						'menu-item-url'         => strval( $menu_item->url ),
+						'menu-item-description' => '',
+						'menu-item-attr-title'  => '',
+						'menu-item-status'      => 'publish',
+					);
+					$menu_item_id = wp_update_nav_menu_item( $parent_menu->term_id , 0, $new );
+					$pos ++;
+
+					if ( !is_wp_error( $menu_item_id ) ) {
+						array_push( $linkmenulist, strval( $menu_item_id ) );
+					}
+				}
+			}
+			hpb_make_menu( $menu_item->menu, $parent_menu, $menu_item_id, $exist_pages, $menu_items, $linkmenulist );
+		}
+	}
 }
 
 function hpb_change_theme( $theme_dir ) {
@@ -400,7 +527,7 @@ function hpb_change_theme( $theme_dir ) {
 	if( !file_exists( $theme_dir ) ){
 		return;
 	}
-	if(get_current_theme() != $theme ){
+	if(wp_get_theme() != $theme ){
 		switch_theme( $theme , $stylesheet );
 	}
 }

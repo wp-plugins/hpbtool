@@ -65,7 +65,7 @@ function hpb_access_analysis_page() {
 			echo $ErrorMessage.'</div>';
 		} else if ( $statusCode == 0 && $hpb_is_changeAccount == true ) {
 ?>
-	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">Justアカウントを再設定しました。</div>
+	<div class="hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">Just アカウントを再設定しました。</div>
 <?php
 		}
 		if( $hpb_is_aa == false ) {
@@ -74,7 +74,7 @@ function hpb_access_analysis_page() {
 			if ( $statusCode == 0 ) {
 				$chkmessage = 'アクセス解析を解除します。よろしいですか？アクセス解析を解除すると今までの解析情報はすべて削除されます。';
 			} else {
-				$chkmessage = 'Justアカウントを再設定します。よろしいですか？';
+				$chkmessage = 'Just アカウントを再設定します。よろしいですか？';
 			}
 		}
 ?>
@@ -96,7 +96,7 @@ function hpb_access_analysis_page() {
 		}
 ?>
 	<div class="hpb_caption">アカウント設定</div>
-	<p>Justアカウントに登録したメールアドレスとパスワードを入力します。<br/>Justアカウントについて詳しくは <a href="http://account.justsystems.com/jp/about.html" target="_blank">こちら</a> をご覧ください。
+	<p>Just アカウントに登録したメールアドレスとパスワードを入力します。<br/>Just アカウントについて詳しくは <a href="http://account.justsystems.com/jp/about.html" target="_blank">こちら</a> をご覧ください。
 	<div id="hpb_aa_acount_form">
 	<img id="hpb_just_account_logo" src="<?php echo HPB_PLUGIN_URL.'/image/admin/just_account.png';?>"/>
 	<table class="hpb_form_table">
@@ -120,7 +120,7 @@ function hpb_access_analysis_page() {
 				<p class="submit"><input class="button-primary" type="submit" name="submit" value="サイトをアクセス解析対象から解除"/></p></form>';
 			} else {
 				echo '<input type="hidden" name="changeAccount" value="1">
-				<p class="submit"><input class="button-primary" type="submit" name="submit" value="Justアカウントの再設定"/></p></form>';
+				<p class="submit"><input class="button-primary" type="submit" name="submit" value="Just アカウントの再設定"/></p></form>';
 			}
 		}
 	}
@@ -332,7 +332,7 @@ function hpb_get_statusMessage( $statusCode ) {
 	} else if( $statusCode == 101 ) {
 		return 'サービスはメンテナンス中です。';
 	} else if( $statusCode == 200 || $statusCode == 201 || $statusCode == 301 || $statusCode == 300 ) {
-		return 'JUSTアカウントまたはパスワードが正しくありません。';
+		return 'Just アカウントまたはパスワードが正しくありません。';
 	} else if( $statusCode == 302 ) {
 		return 'そのアカウントは「かんたんアクセス解析」の会員ではありません。';
 	} else if( $statusCode == 303 ) {

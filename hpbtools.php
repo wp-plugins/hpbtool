@@ -1,11 +1,12 @@
 <?php
 /*
 Plugin Name: hpb Dashboard
-Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash 
+Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb18_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.1.10
+Version: 1.2.1
 Author: JustSystems
-Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb17_wp_hpbdash
+Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb18_wp_hpbdash
+License URI: license.txt
 */
 
 define( 'HPB_PLUGIN_DIR', WP_PLUGIN_DIR.'/hpbtool' );
@@ -21,20 +22,19 @@ require_once HPB_PLUGIN_DIR.'/cockpit.php';
 add_action( 'admin_menu' , 'hpb_option' );
  
 function hpb_option() {
-	$icon_url = HPB_PLUGIN_URL.'/image/admin/menu_hpb.png';	add_menu_page( 'HPBTOOL', 'hpbダッシュボード', '1', 'hpb_main', 'hpb_admin_home', $icon_url, 3 );
-	add_submenu_page( 'hpb_main', 'ホーム', 'ホーム', '1', 'hpb_main', 'hpb_admin_home' );
-	add_submenu_page( 'hpb_main', 'ソーシャルボタン設定', 'ソーシャルボタン設定', '8', 'hpb_social_page', 'hpb_social_page' );
-	add_submenu_page( 'hpb_main', 'フォーム設定', 'フォーム設定', '8', 'hpb_form_page', 'hpb_form_page' );
-	add_submenu_page( 'hpb_main', 'コックピット設定', 'コックピット設定', '8', 'hpb_cockpit_page', 'hpb_cockpit_page' );
-	add_submenu_page( 'hpb_main', 'アクセス解析設定', 'アクセス解析設定', '8', 'hpb_access_analysis_page', 'hpb_access_analysis_page' );
-	add_submenu_page( 'hpb_main', 'オプション', 'オプション', '8', 'hpb_dashborad_widget_option', 'hpb_dashborad_widget_option' );		
+	$icon_url = HPB_PLUGIN_URL.'/image/admin/menu_hpb.png';	add_menu_page( 'HPBTOOL', 'hpbダッシュボード', 'level_1', 'hpb_main', 'hpb_admin_home', $icon_url, 3 );
+	add_submenu_page( 'hpb_main', 'ホーム', 'ホーム', 'level_1', 'hpb_main', 'hpb_admin_home' );
+	add_submenu_page( 'hpb_main', 'ソーシャルボタン設定', 'ソーシャルボタン設定', 'administrator', 'hpb_social_page', 'hpb_social_page' );
+	add_submenu_page( 'hpb_main', 'フォーム設定', 'フォーム設定', 'administrator', 'hpb_form_page', 'hpb_form_page' );
+	add_submenu_page( 'hpb_main', 'コックピット設定', 'コックピット設定', 'administrator', 'hpb_cockpit_page', 'hpb_cockpit_page' );
+	add_submenu_page( 'hpb_main', 'アクセス解析設定', 'アクセス解析設定', 'administrator', 'hpb_access_analysis_page', 'hpb_access_analysis_page' );
+	add_submenu_page( 'hpb_main', 'オプション', 'オプション', 'administrator', 'hpb_dashborad_widget_option', 'hpb_dashborad_widget_option' );		
 }
 
 function hpb_admin_home() {
 ?>
 <div id="hpb_dashboard_body">
 <?php
-	$hpbpage = $_GET['hpbpage'];
 	if( isset( $_POST['hpb-update-data'] ) && hpb_is_admin_level() ) {
 		hpb_import_list_page();
 	} else {
@@ -42,6 +42,7 @@ function hpb_admin_home() {
 		if( hpb_is_admin_level() ) {
 			hpb_plugin_update();
 			hpb_import_page();
+			hpb_install_seo_plugin();
 		}
 		hpb_cockpit_service_info();
 		hpb_guidance_activate_multibyte_patch();
@@ -77,6 +78,76 @@ function hpb_plugin_update() {
 <?php
 		}
 	}
+}
+
+function hpb_install_seo_plugin() {
+	if( !file_exists( HPB_PLUGINDATA_DIR.'/usercontents.xml' ) ) {
+		return;
+	}
+
+	$version = '';
+
+	$xml = new XMLReader();
+	$xml->open( HPB_PLUGINDATA_DIR.'/usercontents.xml' );
+	while ( $xml->read() ) {
+		if ( $xml->nodeType == XMLReader::ELEMENT ) {
+			$version = $xml->getAttribute( 'version' );
+			break;
+		}
+	}
+	$xml->close();
+
+	if( $version == '' ){
+		return;
+	}
+	$vlist = explode( ".", $version );
+	$major = intval( $vlist[0] );
+	$minor = intval( $vlist[1] );
+	if ( $major < 1 || ( $major == 1 && $minor < 1 ) ) {
+		return;
+	}
+
+	$seo_plugin_exits = false;
+	$plugins = get_plugins();
+	if ( $plugins ){
+		foreach( $plugins as $pfile => $pdata ) {
+			if( 'hpbseo/hpbseo.php' == $pfile ) {
+				$seo_plugin_exits = true;
+				break;
+			}
+		}
+	}
+	if ( $seo_plugin_exits == false ) {
+?>
+<form method="post" action="<?php echo admin_url( 'update.php?action=install-plugin&plugin=hpbseo' )?>" name="install-seo-plugin">
+<?php wp_nonce_field('install-plugin_hpbseo'); wp_nonce_field('install-plugin_hpbseo'); ?>
+<div class="submit hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">hpb SEOプラグインをインストールしましょう。<input id="install-seo-plugin" class="button-primary" type="submit" value="今すぐインストール" name="install-seo-plugin" /></div>	</form>	
+<?php
+	} else {
+		if( isset($_POST['hpb_activate_seo_plugin']) ) {
+			hpb_activate_seo_plugin();
+		}
+		if( is_plugin_active('hpbseo/hpbseo.php') == false ) {
+?>
+<div class="hpb_eyecatch_area" class="submit"><form method="post" action="<?php echo str_replace('%7E', '~', $_SERVER['REQUEST_URI']); ?>"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch.png';?>" class="hpb_eyecatch">hpb SEOプラグインを有効化して使ってみましょう。<input class="button-primary" type="submit" name="hpb_activate_seo_plugin" value="有効化する" /></form></div>
+<?php
+		} else {
+			$update_plugins = get_plugin_updates();
+			foreach( (array) $update_plugins as $update_plugin ) {
+				if ( 'hpbseo' === $update_plugin->update->slug ) {
+?>
+<form method="post" action="update-core.php?action=do-plugin-upgrade" name="upgrade-plugins">
+<?php wp_nonce_field('upgrade-core'); wp_nonce_field('upgrade-core'); ?>
+<input type="hidden" name="checked[]" value="hpbseo/hpbseo.php"/><div class="submit hpb_eyecatch_area"><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch2.png';?>" class="hpb_eyecatch">hpb SEOプラグインの更新があります。<input id="upgrade-seo-plugin" class="button-primary" type="submit" value="今すぐ更新する" name="upgrade" /></div>	</form>	
+<?php
+				}
+			}
+		}
+	}
+}
+
+function hpb_activate_seo_plugin() {
+	activate_plugin( 'hpbseo/hpbseo.php');
 }
 
 function hpb_cockpit_service_info() {
@@ -131,6 +202,11 @@ function hpb_head() {
 	hpb_head_social();
 }
 
+add_action('template_redirect', 'hpb_template_redirect');
+
+function hpb_template_redirect() {
+	if (get_option('hpb_site_private', 0 ) == 1 && !is_user_logged_in()) { auth_redirect(); }
+}
 add_action( 'wp_footer', 'hpb_getfooter' );
 
 function hpb_getfooter() {
@@ -182,8 +258,11 @@ function hpb_the_content ( $content ) {
 }
 
 function hpb_is_admin_level() {
+	if( !is_user_logged_in() ) {
+		return false;
+	}
 	$user = get_userdata( get_current_user_id() );
-	$user_level = (int) $user->user_level;
+	$user_level = $user->user_level;
 	if( $user_level >= 8 ){
 		return true;
 	}
@@ -191,8 +270,11 @@ function hpb_is_admin_level() {
 }
 
 function hpb_is_editor_level() {
+	if( !is_user_logged_in() ) {
+		return false;
+	}
 	$user = get_userdata( get_current_user_id() );
-	$user_level = (int) $user->user_level;
+	$user_level = $user->user_level;
 	if( $user_level >= 5 ){
 		return true;
 	}
@@ -200,8 +282,11 @@ function hpb_is_editor_level() {
 }
 
 function hpb_is_author_level() {
+	if( !is_user_logged_in() ) {
+		return false;
+	}
 	$user = get_userdata( get_current_user_id() );
-	$user_level = (int) $user->user_level;
+	$user_level = $user->user_level;
 	if( $user_level >= 2 ){
 		return true;
 	}
@@ -209,8 +294,11 @@ function hpb_is_author_level() {
 }
 
 function hpb_is_subscriber_level() {
+	if( !is_user_logged_in() ) {
+		return false;
+	}
 	$user = get_userdata( get_current_user_id() );
-	$user_level = (int) $user->user_level;
+	$user_level = $user->user_level;
 	if( $user_level >= 1 ){
 		return true;
 	}
@@ -291,9 +379,11 @@ function hpb_dashborad_widget_option() {
 	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_plugins" value="1" <?php checked( get_option('hpb_visible_menu_plugins', 0 ), 1 ); ?>/><?php echo __('プラグイン'); ?></div>
 	</div>
 	<p><input type="radio" name="hpb_hide_menus" value="0" <?php checked( get_option('hpb_hide_menus', 1 ), 0 ); ?>> すべてのメニュー</p>
-	<p class="indent1">WordPressのすべての機能が使えます。WordPressを使い慣れている方にお勧めです。</p></td></tr></table>
+	<p class="indent1">WordPressのすべての機能が使えます。WordPressを使い慣れている方にお勧めです。</p></td></tr>
+	<tr><td colspan="2"><input type="checkbox" name="hpb_site_private" value="1" <?php checked( get_option('hpb_site_private', 0 ), 1 ); ?>/><?php echo __(' サイトを非公開にする。サイトの閲覧にログインが必要になります。'); ?></tr></td>
+	</table>
 	<input type="hidden" name="action" value="update" />
-	<input type="hidden" name="page_options" value="hpb_hide_menus, hpb_visible_menu_dashbord, hpb_visible_menu_addpage, hpb_visible_menu_media, hpb_visible_menu_widgets, hpb_visible_menu_link, hpb_visible_menu_themes, hpb_visible_menu_tools, hpb_visible_menu_users, hpb_visible_menu_options, hpb_visible_menu_plugins" />
+	<input type="hidden" name="page_options" value="hpb_hide_menus, hpb_visible_menu_dashbord, hpb_visible_menu_addpage, hpb_visible_menu_media, hpb_visible_menu_widgets, hpb_visible_menu_link, hpb_visible_menu_themes, hpb_visible_menu_tools, hpb_visible_menu_users, hpb_visible_menu_options, hpb_visible_menu_plugins, hpb_site_private" />
 	<br><input type="submit" class="button-primary" value="<?php _e('設定を保存する') ?>" />
 	</form>
 	</div>
@@ -325,7 +415,7 @@ function hpb_dashboard_widget_function() {
 	<li class="hpb_menu_item"><a href='edit-comments.php?comment_status=approved' id="<?php if($comment_counts->approved == 0 ) { echo 'hpb_comment_view_btn3';} elseif($comment_counts->approved < 100 ) { echo 'hpb_comment_view_btn';} else { echo 'hpb_comment_view_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts->approved == 0 ) { echo ' displaynone';} ?>"><?php echo $comment_counts->approved; ?></span></a></li></ul></td>
 </tr><tr>
 	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/cockpit_icon.png"></td>
-	<td><ul><li class="hpb_menu_item"><a href='http://www.justsystems.com/jp/links/hpb/cp.html?p=hpb17_wp_hpbdash' id="hpb_cockpit_check_btn" target="_blank"></a></li></ul></td>
+	<td><ul><li class="hpb_menu_item"><a href='http://www.justsystems.com/jp/links/hpb/cp.html?p=hpb18_wp_hpbdash' id="hpb_cockpit_check_btn" target="_blank"></a></li></ul></td>
 </tr><tr>
 	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/seo_icon.png"></td>
 	<td><ul><li class="hpb_menu_item"><a href='https://kantan-access.com/jana_webapp/login.do' id="hpb_aa_check_btn" target="_blank"></a></li></ul></td>
@@ -348,8 +438,8 @@ function hpb_dashboard_widget_function() {
 <?php  } ?>
 <tr><td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/help_icon.png"/></td>
 <td><ul class="hpb_option_settings_category hpb_menu_list">
-	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash" id="hpb_help" target="_blank"></a></li>
-	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://support.justsystems.com/jp/app/servlet/productslink?apl=hpb17" id="hpb_faq" target="_blank"></a></li>
+	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb18_wp_hpbdash" id="hpb_help" target="_blank"></a></li>
+	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://support.justsystems.com/jp/app/servlet/productslink?apl=hpb18" id="hpb_faq" target="_blank"></a></li>
 </ul>
 <div class="hpb_clearboth"></div></td></tr></table>
 <?php
@@ -442,7 +532,7 @@ function change_post_menu_label() {
 	}
 	global $menu;
 	global $submenu;
-	if( $menu[5][0] == 投稿 ) {
+	if( $menu[5][0] == '投稿' ) {
 		$menu[5][0] = 'ブログ';
 		$submenu['edit.php'][5][0] = 'ブログ一覧';
 	}
@@ -454,7 +544,7 @@ function change_post_object_label() {
 	}
 	global $wp_post_types;
 	$labels = &$wp_post_types['post']->labels;
-	if( $labels->name == 投稿 ) {
+	if( $labels->name == '投稿' ) {
 		$labels->name = 'ブログ';
 	}
 }
@@ -463,7 +553,7 @@ add_action( 'admin_menu', 'change_post_menu_label' );
 
 add_action( 'admin_footer_text', 'custom_admin_footer' );
 function custom_admin_footer() {
-    echo '<a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb17_wp_hpbdash" target="_blank"/>ホームページビルダー WordPress編 PDFマニュアル</a>';
+    echo '<a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb18_wp_hpbdash" target="_blank"/>hpbダッシュボードで投稿・集客 PDFマニュアル</a>';
 }
 
 add_action( 'admin_print_styles', 'hpb_plugin_admin_styles' );

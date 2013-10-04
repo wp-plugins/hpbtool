@@ -236,7 +236,7 @@ function hpb_social_the_content( $content ) {
 				} else if( $social_button_id == 'hatena_bookmark_nocount' ) {
 					$hatema_bookmark_layout = 'simple';
 				} 
-				$hatena_bookmark = '<div><a href="http://b.hatena.ne.jp/entry/'.get_permalink().'" class="hatena-bookmark-button" data-hatena-bookmark-title="'.get_the_title .'" data-hatena-bookmark-layout="'.$hatema_bookmark_layout.'" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script></div>'."\n";
+				$hatena_bookmark = '<div><a href="http://b.hatena.ne.jp/entry/'.get_permalink().'" class="hatena-bookmark-button" data-hatena-bookmark-title="'.get_the_title() .'" data-hatena-bookmark-layout="'.$hatema_bookmark_layout.'" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script></div>'."\n";
 				$content_social .= $hatena_bookmark;
 			} else if ( $social_button_id == 'evernote_clip_horizontal' || $social_button_id == 'evernote_clip_vertical' ) {
 				if( $social_button_id == 'evernote_clip_horizontal' ) {
