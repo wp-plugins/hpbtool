@@ -231,7 +231,7 @@ function hpb_import_xml( $post ) {
 
 	// category
 	foreach ( $xml->category as $category ){
-		hpb_insert_category( strval( $category->cat_name ), strval( $category->category_description ), strval( $category->category_nicename ), strval( $category->taxonomy ) );
+		hpb_insert_category( esc_html( $category->cat_name ), strval( $category->category_description ), strval( $category->category_nicename ), strval( $category->taxonomy ) );
 	}
 
 	//delete page
@@ -240,7 +240,7 @@ function hpb_import_xml( $post ) {
 			if( $value == 'trash' ) {
 				if( wp_delete_post( $key ) != false ) {
 					//delete custom menu
-					_wp_delete_post_menu_item( $key );
+					hpb_delete_post_menu_item( $key );
 				}
 			} else if( $value == 'delete' ) {
 				wp_delete_post( $key, true );
@@ -336,7 +336,7 @@ function hpb_import_xml( $post ) {
 
 					//taxonomy
 					foreach ( $item->term_category as $category ) {
-						wp_set_object_terms( $new_page, strval( $category->nicename ), strval( $category->taxonomy ) );
+						wp_set_object_terms( $new_page, esc_html( $category->nicename ), strval( $category->taxonomy ) );
 					}
 
 					//attachment
@@ -349,7 +349,7 @@ function hpb_import_xml( $post ) {
 				}
 				/* delete custom menu */
 				if( $_POST['update_custom_menu'] == 1 ) {
-					_wp_delete_post_menu_item( $new_page );
+					hpb_delete_post_menu_item( $new_page );
 				}
 			}
 			if ( $bexist == true && $new_page != 0 ) {
@@ -380,7 +380,7 @@ function hpb_import_xml( $post ) {
 				}
 				/* delete custom menu */		
 				if ( $_POST['update_custom_menu'] == 1 ) {
-					_wp_delete_post_menu_item($new_page);
+					hpb_delete_post_menu_item( $new_page );
 				}
 			}
 
@@ -515,6 +515,42 @@ function hpb_make_menu( &$menu, &$parent_menu, $parent_id, &$exist_pages, &$menu
 			}
 			hpb_make_menu( $menu_item->menu, $parent_menu, $menu_item_id, $exist_pages, $menu_items, $linkmenulist );
 		}
+	}
+}
+
+function hpb_get_associated_nav_menu_items( $object_id = 0, $object_type = 'post_type' ) {
+	$object_id = (int) $object_id;
+	$menu_item_ids = array();
+
+	$query = new WP_Query;
+	$menu_items = $query->query(
+		array(
+			'meta_key' => '_menu_item_object_id',
+			'meta_value' => $object_id,
+			'post_status' => 'any',
+			'post_type' => 'nav_menu_item',
+			'posts_per_page' => -1,
+		)
+	);
+	foreach( (array) $menu_items as $menu_item ) {
+		if ( isset( $menu_item->ID ) && is_nav_menu_item( $menu_item->ID ) ) {
+			if ( get_post_meta( $menu_item->ID, '_menu_item_type', true ) !== $object_type )
+				continue;
+
+			$menu_item_ids[] = (int) $menu_item->ID;
+		}
+	}
+
+	return array_unique( $menu_item_ids );
+}
+
+function hpb_delete_post_menu_item( $object_id = 0 ) {
+	$object_id = (int) $object_id;
+
+	$menu_item_ids = hpb_get_associated_nav_menu_items( $object_id, 'post_type' );
+
+	foreach( (array) $menu_item_ids as $menu_item_id ) {
+		wp_delete_post( $menu_item_id, true );
 	}
 }
 
