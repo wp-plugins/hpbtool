@@ -94,6 +94,23 @@ table.sns_form_table td {
 	vertical-align:top;
 }
 
+.input_item {
+	padding: 5px;
+}
+
+.input_item label, .input_label {
+	display: inline-block;
+	width: 110px;
+}
+.input_value {
+	display: inline-block;
+	padding-left: 20px;
+	vertical-align: top;
+}
+.input_label, .input_value {
+	margin: 0;
+}
+
 #cockpit_tweet_common_comment_before, #cockpit_tweet_common_comment_after {
 	margin-left:10px;
 	color:#aaaaaa;
@@ -244,6 +261,10 @@ table.sns_account_meta tr {
 	margin-top: 20px;
 	margin-right:15px;
 }
+#cockpit_cancel {
+	display: inline-block;
+	margin-top: 20px;
+}
 
 .btn_accordion {
 	cursor: pointer;
@@ -349,6 +370,56 @@ table.sns_account_meta tr {
     box-shadow: 0 1px 0 #EFFAFF;
 }
 
+@media (max-width: 768px) {
+
+.hdr_img {
+	width: 100%;
+}
+
+.cockpit_catch_link {
+	position:static;
+}
+
+.hdr_image_caption {
+	width: 100%;
+}
+
+.table_caption {
+	width: 100%;
+}
+.header_caption {
+	width: auto;
+	white-space: nowrap;
+}
+.hr_caption {
+	width:100%;
+}
+
+.input_item input[type="text"],
+.input_item input[type="password"],
+.input_value input[type="text"],
+.input_value input[type="password"] {
+	width: 100%;
+}
+
+.tw_account_box {
+	min-width: 0;
+}
+
+.btn_accordion {
+	position: static;
+	margin-left: auto;
+	margin-right: 0;
+}
+
+}
+
+@media (max-width: 480px) {
+#post_sample {
+	width: 100%;
+}
+}
+
 /* end metabox */
 
 /* jQUery dialog */
@@ -406,3 +477,12 @@ table.sns_account_meta tr {
 .dialog_cockpit_post_confirm ul li { padding-left: 15px; padding-bottom:5px; background: url('image/admin/list-mark.png') left top no-repeat;}
 .dialog_cockpit_post_confirm .cockpit_tw_preview_url{ background-color:#fffbcc;}
 .dialog_cockpit_post_confirm .cockpit_tw_preview{ background-color:#ffffff; padding:5px; border:1px solid #bebebe; min-height:90px; margin: 10px 0px 10px 0px; }
+
+@media (max-width: 600px){
+.dialog_cockpit_post_confirm .ui-dialog-content { padding: .2em; }
+.dialog_cockpit_post_confirm h3 { margin:5px 0; font-size: 80%; }
+.dialog_cockpit_post_confirm div.subbox { padding: 5px; width:280px; font-size: 80%; }
+.dialog_cockpit_post_confirm #cockpit_confirm_footerbox { width:280px; margin:5px auto 0px auto; font-size: 80% }
+.dialog_cockpit_post_confirm ul { padding: 5px 0 0 0;}
+.dialog_cockpit_post_confirm form { margin:0; padding:0; }
+}

@@ -99,10 +99,15 @@ function hpb_access_analysis_page() {
 	<p>Just アカウントに登録したメールアドレスとパスワードを入力します。<br/>Just アカウントについて詳しくは <a href="http://account.justsystems.com/jp/about.html" target="_blank">こちら</a> をご覧ください。
 	<div id="hpb_aa_acount_form">
 	<img id="hpb_just_account_logo" src="<?php echo HPB_PLUGIN_URL.'/image/admin/just_account.png';?>"/>
-	<table class="hpb_form_table">
-	<tr><td>メールアドレス</td><td><input size="60" type="text" name="hpb_access_acount" value="<?php echo get_option('hpb_access_acount'); ?>" <?php if($hpb_is_readonly){ echo 'readonly';}?>/></td></tr>
-	<tr><td>パスワード</td><td><input size="60" type="password" name="hpb_access_password" value="<?php echo get_option('hpb_access_password'); ?>" <?php if($hpb_is_readonly){ echo 'readonly';}?>/></td></tr>
-	</table></div>
+	<p>
+		<label for="hpb_access_acount">メールアドレス</label>
+		<input size="60" type="text" name="hpb_access_acount" id="hpb_access_acount" value="<?php echo get_option('hpb_access_acount'); ?>" <?php if($hpb_is_readonly){ echo 'readonly';}?>/>
+	</p>
+	<p>
+		<label for="hpb_access_password">パスワード</label>
+		<input size="60" type="password" name="hpb_access_password" id="hpb_access_password" value="<?php echo get_option('hpb_access_password'); ?>" <?php if($hpb_is_readonly){ echo 'readonly';}?>/>
+	</p>
+	</div>
 	<input type="hidden" name="permission" value="0"/>
 <?php 
 		if( $hpb_is_aa == false ) {

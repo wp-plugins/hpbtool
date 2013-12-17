@@ -14,6 +14,7 @@ a {
 
 .hpb_caption {
 	font-size: 1em;
+	margin-top: 12px;
 }
 
 .postbox h3 {
@@ -110,11 +111,12 @@ div.buttonoption input {
 #socialbuttonlist {
 	float: left;
 	list-style: none;
+	box-sizing: border-box;
 	padding: 15px 35px 15px 35px;
 	border:dashed 4px #dddddd;
 	background-color:#ffffff;
 	min-height:70px;
-	min-width:650px;
+	min-width:820px;
 }
 
 #socialbuttonlist li {
@@ -190,3 +192,30 @@ div.buttonoption input {
 label {
 	margin-right: 10px;
 }
+
+#hpb_social_tabs ul.category-tabs {
+	margin-top: 12px;
+}
+
+.hpb_social_button {
+	margin: 15px;
+}
+
+@media (max-width: 768px) {
+	#socialbuttonlist {
+		min-width: 100%;
+	}
+}
+
+@media (max-width: 480px) {
+	div.socialType {
+		box-sizing: border-box;
+	}
+	#facebooklike, #googleplus, #tweet, #mixicheck, #evernoteclip, #hatenabookmark {
+		min-width: 100%;
+	}
+	div.buttonoption input {
+		width: 100%;
+	}
+}
+

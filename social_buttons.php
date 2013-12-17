@@ -10,6 +10,10 @@ function hpb_social_page()
 	wp_enqueue_script('jquery-ui-sortable');
 	wp_enqueue_script('jquery-ui-draggable');
 	wp_enqueue_script('jquery-ui-droppable');
+	wp_enqueue_script('jquery-ui-dialog');
+	wp_enqueue_style('wp-jquery-ui-dialog');
+	if ( wp_is_mobile() )
+		wp_enqueue_script( 'jquery-touch-punch' );
 	wp_enqueue_script('hpb_social_admin', HPB_PLUGIN_URL.'/hpb_social_admin.js');
 ?>
 <div id="hpb_dashboard_body">
@@ -67,11 +71,16 @@ function hpb_social_page()
 		</ul>
 		<div class="clearfloat"></div>
 		<div class="buttonoption">
-		<table>
-		<tr><td><div>ユーザーID</div></td><td><input size="40" type="text" name="hpb_social_facebook_admins" value="<?php echo get_option('hpb_social_facebook_admins'); ?>"/></td></tr>
-		<tr><td><div>アプリケーションID</div></td><td><input size="40" type="text" name="hpb_social_facebook_app_id" value="<?php echo get_option('hpb_social_facebook_app_id'); ?>"/></td></tr>
-		<tr><td></td><td><div>取得方法については、FacebookのWebページ をご覧ください。</div></td></tr>
-		</table>
+		<p>
+			<label for="hpb_social_facebook_admins">ユーザーID</label>
+			<input size="40" type="text" name="hpb_social_facebook_admins" id="hpb_social_facebook_admins" value="<?php echo get_option('hpb_social_facebook_admins'); ?>"/>
+		</p>
+		<p>
+			<label for="hpb_social_facebook_app_id">アプリケーションID</label>
+			<input size="40" type="text" name="hpb_social_facebook_app_id" id="hpb_social_facebook_app_id" value="<?php echo get_option('hpb_social_facebook_app_id'); ?>"/>
+		</p>
+		</dl>
+		<div>取得方法については、FacebookのWebページ をご覧ください。</div>
 		</div>
 	</div>
 </div>
@@ -92,10 +101,12 @@ function hpb_social_page()
 		</ul>
 		<div class="clearfloat"></div>
 		<div class="buttonoption">
-		<table><tr><td>
-		<tr><td><div>mixiチェックキー</div></td><td><input size="40" type="text" name="hpb_social_mixi_check_key" value="<?php echo get_option('hpb_social_mixi_check_key'); ?>"/></td></tr>
-		<tr><td></td><td><div>取得方法については、mixiのWebページ をご覧ください。</div></td></tr>
-		</td></tr></table></div>
+		<p>
+			<label for="hpb_social_mixi_check_key">mixiチェックキー</label>
+			<input size="40" type="text" name="hpb_social_mixi_check_key" id="hpb_social_mixi_check_key" value="<?php echo get_option('hpb_social_mixi_check_key'); ?>"/>
+		</p>
+		<div>取得方法については、mixiのWebページ をご覧ください。</div>
+		</div>
 	</div>
 </div>
 <div id="hatenabookmark_tab">
@@ -119,14 +130,14 @@ function hpb_social_page()
 <div class="hpb_content">
 <?php wp_nonce_field('update-options'); ?>
 <div id="hpb_insert_pos_settings"><div class="hpb_caption">挿入位置</div>
-<p class="indent1"><input type="checkbox" name="hpb_social_post" value="1" <?php checked( get_option('hpb_social_post', 1 ), 1 ); ?> > 投稿単体ページ</input></p>
-<p class="indent2"><input type="radio" name="hpb_social_post_insert_position" id="insert_post_before" value="0" <?php checked( get_option('hpb_social_post_insert_position', 0 ), 0 ); ?> ><label for="insert_post_before"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_top.png"/>記事の前</label></input>
-<input type="radio" name="hpb_social_post_insert_position" id="insert_post_after" value="1" <?php checked( get_option('hpb_social_post_insert_position', 0 ), 1 ); ?> ><label for="insert_post_after"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_bottom.png"/>記事の後ろ</label></input></p>
-<p class="indent1"><input type="checkbox" name="hpb_social_page" value="1" <?php checked( get_option('hpb_social_page', 1 ), 1 ); ?> > 固定ページ</input></p>
-<p class="indent2"><input type="checkbox" name="hpb_social_front_page" value="1" <?php checked( get_option('hpb_social_front_page', 0 ), 1 ); ?> > トップページのみ</input></p>
-<p class="indent2"><input type="radio" name="hpb_social_page_insert_position" id="insert_page_before" value="0" <?php checked( get_option('hpb_social_page_insert_position', 0 ), 0 ); ?> ><label for="insert_page_before"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_top.png"/>記事の前</label></input>
-<input type="radio" name="hpb_social_page_insert_position" id="insert_page_after" value="1" <?php checked( get_option('hpb_social_page_insert_position', 0 ), 1 ); ?> ><label for="insert_page_after"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_bottom.png"/>記事の後ろ</label></input></p><br/>
-<p class="indent1"><input type="checkbox" name="hpb_social_ogp_set" value="1" <?php checked( get_option('hpb_social_ogp_set', 1 ), 1 ); ?> > OGPを自動設定する</input></p>
+<p class="indent1"><input type="checkbox" name="hpb_social_post" id="hpb_social_post" value="1" <?php checked( get_option('hpb_social_post', 1 ), 1 ); ?> /><label for="hpb_social_post"> 投稿単体ページ</label></p>
+<p class="indent2"><input type="radio" name="hpb_social_post_insert_position" id="insert_post_before" value="0" <?php checked( get_option('hpb_social_post_insert_position', 0 ), 0 ); ?> /><label for="insert_post_before"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_top.png"/>記事の前</label>
+<input type="radio" name="hpb_social_post_insert_position" id="insert_post_after" value="1" <?php checked( get_option('hpb_social_post_insert_position', 0 ), 1 ); ?> /><label for="insert_post_after"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_bottom.png"/>記事の後ろ</label></p>
+<p class="indent1"><input type="checkbox" name="hpb_social_page" id="hpb_social_page" value="1" <?php checked( get_option('hpb_social_page', 1 ), 1 ); ?> /><label for="hpb_social_page"> 固定ページ</label></p>
+<p class="indent2"><input type="checkbox" name="hpb_social_front_page" id="hpb_social_front_page" value="1" <?php checked( get_option('hpb_social_front_page', 0 ), 1 ); ?> /><label for="hpb_social_front_page"> トップページのみ</label></p>
+<p class="indent2"><input type="radio" name="hpb_social_page_insert_position" id="insert_page_before" value="0" <?php checked( get_option('hpb_social_page_insert_position', 0 ), 0 ); ?> /><label for="insert_page_before"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_top.png"/>記事の前</label>
+<input type="radio" name="hpb_social_page_insert_position" id="insert_page_after" value="1" <?php checked( get_option('hpb_social_page_insert_position', 0 ), 1 ); ?> ><label for="insert_page_after"/><img src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/socialbutton_insert_bottom.png"/>記事の後ろ</label></p><br/>
+<p class="indent1"><input type="checkbox" name="hpb_social_ogp_set" id="hpb_social_ogp_set" value="1" <?php checked( get_option('hpb_social_ogp_set', 1 ), 1 ); ?> /><label for="hpb_social_ogp_set"> OGPを自動設定する</label></p>
 </div></div>
 <div class="hpb_content">
 <p><input type="hidden" name="hpb_social_buttons_order" id="order" value="<?php echo hpb_get_social_buttons_order() ?>"/><input type="submit" class="button-primary" value="<?php _e('設定を保存する') ?>" /></p></div>

@@ -34,6 +34,8 @@ function cockpit_init()
 			$user_level = (int) $user->user_level;
 			if( $user_level >= 2 ){
 				add_action( 'admin_bar_menu', array($this, 'cockpit_add_adminbarmenu'), 500 );
+				add_action( 'wp_head', array($this, 'cockpit_add_admin_css'), 500 );
+				add_action( 'admin_head', array($this, 'cockpit_add_admin_css'), 500 );
 			}
 		}
 		add_action( 'admin_print_scripts', array( $this, 'cockpit_before_publishing'), 20);
@@ -123,14 +125,21 @@ function cockpit_before_publishing() {
 <script><!--
 
 function cockpit_post_sns_confirm(tw_message, e) {
-	var div_dialog = jQuery('<div class="ui-dialog" ><h3>以下の内容で自動投稿します。よろしいですか？</h3><div class="subbox"><h4>投稿内容</h4><div class="cockpit_tw_preview">'+tw_message+'</div><p><ul><li>投稿内容の変更や自動投稿の 有効／無効 の切り替えは、コックピットの設定画面で行えます。</li><li>投稿による集客効果の解析結果が、コックピットサービスの解析結果画面に反映されるまで、１時間程度かかります。</li></ul></div><form id="agree-form"><div id="cockpit_confirm_footerbox"><input type="checkbox" id="cockpit_nolongeropen">次回からこの画面を表示しない</input></div></form></div>');
+	var windowWidth = parseInt(jQuery(window).width());
+	var dialogWidth = 600;
+	var dialogHeight = 515;
+	if(windowWidth < 600){
+		dialogWidth = 310;
+		dialogHeight = 410;
+	}
+	var div_dialog = jQuery('<div class="ui-dialog" ><h3>以下の内容で自動投稿します。よろしいですか？</h3><div class="subbox"><h4>投稿内容</h4><div class="cockpit_tw_preview">'+tw_message+'</div><p><ul><li>投稿内容の変更や自動投稿の 有効／無効 の切り替えは、コックピットの設定画面で行えます。</li><li>投稿による集客効果の解析結果が、コックピットサービスの解析結果画面に反映されるまで、１時間程度かかります。</li></ul></div><form id="agree-form"><div id="cockpit_confirm_footerbox"><input type="checkbox" id="cockpit_nolongeropen" /><label for="cockpit_nolongeropen">次回からこの画面を表示しない</label></div></form></div></div>');
 	div_dialog.dialog({
 		autoOpen: false,
 		title: 'コックピット',
 		dialogClass: 'dialog_cockpit_post_confirm wp-dialog',
 		closeOnEscape: false,
-		width: 600,
-		height: 515,
+		width: dialogWidth,
+		height: dialogHeight,
 		modal: true,
 		draggable: false,
 		resizable: false,
@@ -202,7 +211,7 @@ jQuery( function() {
 			return;
 		isCockpitOpened = true;
 		e.preventDefault();
-		var div_dialog = jQuery('<div class="ui-dialog" ><h3>公開したことをコックピットからSNSに投稿しましょう。</h3><div class="subbox">次のいずれかの方法でSNSに投稿できます。<div class="methodul"><div class="methodli" ><h4>投稿方法１</h4><p>コックピット連携ボックスの<img class="cockpit_button_name" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn1.png" />をクリックします。</p></div><div class="methodli" ><h4>投稿方法２</h4><p>1.記事を公開した後に表示されるメッセージの<img class="cockpit_button_name" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn2.png" />をクリックしてサイトを確認します。</p><p>2.画面上部にあるツールバーの<img class="cockpit_button_name" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn3.png" />をクリックします。</p><p><img id="admin_img_post_btn" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn.png"/></p></div></div></div><form id="agree-form"><div id="cockpit_confirm_footerbox"><input type="checkbox" id="cockpit_nolongeropen">次回からこの画面を表示しない</input></div></form>');
+		var div_dialog = jQuery('<div class="ui-dialog" ><h3>公開したことをコックピットからSNSに投稿しましょう。</h3><div class="subbox">次のいずれかの方法でSNSに投稿できます。<div class="methodul"><div class="methodli" ><h4>投稿方法１</h4><p>コックピット連携ボックスの<img class="cockpit_button_name" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn1.png" />をクリックします。</p></div><div class="methodli" ><h4>投稿方法２</h4><p>1.記事を公開した後に表示されるメッセージの<img class="cockpit_button_name" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn2.png" />をクリックしてサイトを確認します。</p><p>2.画面上部にあるツールバーの<img class="cockpit_button_name" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn3.png" />をクリックします。</p><p><img id="admin_img_post_btn" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_post-btn.png"/></p></div></div></div><form id="agree-form"><div id="cockpit_confirm_footerbox"><input type="checkbox" id="cockpit_nolongeropen" /><label for="cockpit_nolongeropen">次回からこの画面を表示しない</label></div></form>');
 		div_dialog.dialog({
 			autoOpen: false,
 			title: 'コックピット',
@@ -260,7 +269,7 @@ function cockpit_admin_home() {
 ?>
 <div id="cockpit_body">
 <?php if($this->title_icon !== '') { ?>
-<div id="cockpit_title"><h2><img src="<?php echo $this->title_icon; ?>"><?php _e('コックピット設定', 'cockpit'); ?></h2></div>
+<div id="cockpit_title"><h2><img src="<?php echo $this->title_icon; ?>" /><?php _e('コックピット設定', 'cockpit'); ?></h2></div>
 <?php } ?>
 <?php
 	$this->cockpit_plugin_update();
@@ -274,13 +283,13 @@ function cockpit_admin_home() {
 		$token = $this->cockpit_get_token($error_token);
 		if($error_token !== '' ){
 ?>
-<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch"><span><?php echo $error_token; ?></span></div>
+<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch" /><span><?php echo $error_token; ?></span></div>
 <?php
 		} else {
 			$sites = $this->cockpit_getsites($token, $error_getsites);
 			if($error_getsites !== ''){
 ?>
-<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch"><span><?php echo $error_getsites; ?></span></div>
+<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch" /><span><?php echo $error_getsites; ?></span></div>
 <?php
 			} else {
 				if(!isset($_POST['cockpit_siteId']) && !isset($_POST['cockpit_add_new'])) {
@@ -296,7 +305,7 @@ function cockpit_admin_home() {
 						$siteId = $this->cockpit_registration_site($token, $error_register);
 						if($error_register !== ''){
 ?>
-<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch"><span><?php echo $error_register; ?></span></div>
+<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch" /><span><?php echo $error_register; ?></span></div>
 <?php
 							$siteId = '';
 						}
@@ -308,7 +317,7 @@ function cockpit_admin_home() {
 						$this->cockpit_update_trackingcode($token, $error_trackingcode);
 						if($error_token !== '' ){
 ?>
-<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch"><span><?php echo $error_trackingcode; ?></span></div>
+<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch" /><span><?php echo $error_trackingcode; ?></span></div>
 <?php
 						}
 					}
@@ -346,6 +355,7 @@ function cockpit_admin_home() {
 		$this->cockpit_settings($token);
 	}
 ?>
+</div>
 <?php
 }
 
@@ -368,20 +378,42 @@ if(!is_null($site)){
 <div><?php _e('既に同じURLのサイトが登録されています。このサイトを使用します。よろしいですか？', 'cockpit'); ?></div>
 <form method="post" action="<?php str_replace('%7E', '~', $_SERVER['REQUEST_URI']); ?>" class="confirm_target_site">
 <h3><?php _e('アクセス解析するサイト', 'cockpit'); ?></h3>
-<table class="form_table"><tr><td><?php _e('あなたのサイト名', 'cockpit'); ?></td><td><?php echo $site['name']; ?></td></tr>
-<tr><td>URL</td><td><?php echo $site['url']; ?></td></tr>
-<tr><td>登録日時</td><td><?php echo date('Y年m月d日 H:i', strtotime($site['regist_date'])); ?></td></tr></table>
-</select><input name="cockpit_siteId" value="<?php echo $site['site_id']; ?>" type="hidden"><input type="hidden" name="cockpit_add_site" value="1"><input class="button-primary" id="cockpit_on" type="submit" value="<?php _e('コックピットと連携', 'cockpit'); ?>"></input><a href="" class="button-secondary" >キャンセル</a></form>
+<div class="input_item">
+	<p class="input_label"><?php _e('あなたのサイト名', 'cockpit'); ?></p>
+	<p class="input_value"><?php echo $site['name']; ?></p>
+</div>
+<div class="input_item">
+	<p class="input_label">URL</p>
+	<p class="input_value"><?php echo $site['url']; ?></p>
+</div>
+<div class="input_item">
+	<p class="input_label">登録日時</p>
+	<p class="input_value"><?php echo date('Y年m月d日 H:i', strtotime($site['regist_date'])); ?></p>
+</div>
+</select><input name="cockpit_siteId" value="<?php echo $site['site_id']; ?>" type="hidden"><input type="hidden" name="cockpit_add_site" value="1">
+<div class="button_wrapper">
+<input class="button-primary" id="cockpit_on" type="submit" value="<?php _e('コックピットと連携', 'cockpit'); ?>"/><a href="" class="button-secondary" id="cockpit_cancel" >キャンセル</a></form>
+</div>
+</form>
 <?php
 } else {
 ?>
 <div><?php _e('次のサイトをコックピットでアクセス解析するサイトに登録します。よろしいですか？', 'cockpit'); ?></div>
 <form method="post" action="<?php str_replace('%7E', '~', $_SERVER['REQUEST_URI']); ?>" class="confirm_target_site">
 <h3><?php _e('アクセス解析するサイト', 'cockpit'); ?></h3>
-<table class="form_table"><tr><td><?php _e('あなたのサイト名', 'cockpit'); ?></td><td><?php echo get_bloginfo('name'); ?></td></tr>
-<tr><td>URL</td><td><?php echo home_url(); ?></td></tr>
-<tr><td>登録日時</td><td><?php echo date_i18n ('Y年m月d日 H:i'); ?></td></tr></table>
-</select><input name="cockpit_add_new" value="1" type="hidden"><input type="hidden" name="cockpit_add_site" value="1"><input class="button-primary" id="cockpit_on" type="submit" value="<?php _e('コックピットと連携', 'cockpit'); ?>"></input><a href="" class="button-secondary" >キャンセル</a></form>
+<div class="input_item">
+	<p class="input_label"><?php _e('あなたのサイト名', 'cockpit'); ?></p>
+	<p class="input_value"><?php echo get_bloginfo('name'); ?>
+</div>
+<div class="input_item">
+	<p class="input_label">URL</p>
+	<p class="input_value"><?php echo home_url(); ?></p>
+</div>
+<div class="input_item">
+	<p class="input_label">登録日時</p>
+	<p class="input_value"><?php echo date_i18n ('Y年m月d日 H:i'); ?></p>
+</div>
+</select><input name="cockpit_add_new" value="1" type="hidden"><input type="hidden" name="cockpit_add_site" value="1"><input class="button-primary" id="cockpit_on" type="submit" value="<?php _e('コックピットと連携', 'cockpit'); ?>"/><a href="" class="button-secondary" id="cockpit_cancel" >キャンセル</a></form>
 <?php
 }
 }
@@ -391,7 +423,7 @@ function cockpit_settings($token) {
 	$twitter_active = false;
 	if($error !== '') {
 ?>
-<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch"><span><?php echo $error; ?></span></div>
+<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch" /><span><?php echo $error; ?></span></div>
 <?php
 	}
 	if($error === '' && count($twitter_info) != 0){
@@ -399,47 +431,63 @@ function cockpit_settings($token) {
 	}
 	if($twitter_active == false){
 ?>
-<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch"><span><?php _e('自動投稿を有効化するには、利用するTwitterアカウントの設定が必要です。', 'cockpit'); ?></span><a href="https://web-cockpit.jp/app/#login3/<?php echo $token; ?>/<?php echo get_option('cockpit_siteId'); ?>" target="_blank" class="button-primary" >Twitterアカウントを設定</a></div>
+<div class="cockpit_eyecatch_area"><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/eyecatch.png" class="cockpit_eyecatch" /><span><?php _e('自動投稿を有効化するには、利用するTwitterアカウントの設定が必要です。', 'cockpit'); ?></span><a href="https://web-cockpit.jp/app/#login3/<?php echo $token; ?>/<?php echo get_option('cockpit_siteId'); ?>" target="_blank" class="button-primary" >Twitterアカウントを設定</a></div>
 <?php } ?>
 <form method="post" name="cockpit-settings" action="options.php">
 <?php wp_nonce_field('update-options'); ?>
 <div class="cockpit_block"><table><tr><td><h3 class="header_caption"><?php _e('Twitter設定', 'cockpit'); ?></h3></td><td class="hrimg hr_caption"/></table>
-<table class="sns_form_table">
-<tr><td class="form_td"><?php if($twitter_active == false) { ?><span class="caution">*</span> <?php } ?><?php _e('Twitterアカウント', 'cockpit'); ?></td><td>
+<div class="input_item">
+<div class="input_label">
+<?php if($twitter_active == false) { ?><span class="caution">*</span> <?php } ?><?php _e('Twitterアカウント', 'cockpit'); ?>
+</div>
+<div class="input_value">
 <?php 
 	if($twitter_active == true) {
 ?>
-<img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/btn_account-tw.png"><br>
+<img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/btn_account-tw.png" /><br>
 <div class="tw_account_box">
-<table class="sns_account"><tr><td><img src="<?php echo $twitter_info['profile_image_url']; ?>" class="sns_account_icon"></td><td><b><?php echo $twitter_info['name']; ?></b><br>＠<?php echo $twitter_info['screen_name']; ?></td></tr></table>
+<table class="sns_account"><tr><td><img src="<?php echo $twitter_info['profile_image_url']; ?>" class="sns_account_icon" /></td><td><b><?php echo $twitter_info['name']; ?></b><br>＠<?php echo $twitter_info['screen_name']; ?></td></tr></table>
 </div>
 <?php
 	} else {
 ?>
 <a class="tw_account_add" href="https://web-cockpit.jp/app/#login3/<?php echo $token; ?>/<?php echo get_option('cockpit_siteId'); ?>" target="_blank" ></a><br>
 <div class="tw_account_box">
-<table class="sns_account"><tr><td><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/icon_no-account.png"></td><td id="tw_no_account"><span>アカウントが登録されていません</span></tr></table>
+<table class="sns_account"><tr><td><img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/icon_no-account.png" /></td><td id="tw_no_account"><span>アカウントが登録されていません</span></tr></table>
 </div>
 <?php
 	}
-?></td></tr>
-<tr><td><p><?php _e('自動投稿', 'cockpit'); ?></p></td><td>
+?>
+</div>
+</div>
+<div class="input_item">
+<div class="input_label">
+<p><?php _e('自動投稿', 'cockpit'); ?></p>
+</div>
+<div class="input_value">
 <?php _e('<p>記事やページを投稿したときに、コックピットが自動でサイトの更新をTwitterに投稿します。<br>
 サイトの更新をTwitterに投稿することで、より多くのアクセス数が見込めます。</p>', 'cockpit'); ?>
 <?php $auto_tweet = get_option('cockpit_auto_tweet', 1 ); ?>
-<span class="radio_align" ><input type="radio" name="cockpit_auto_tweet" value="0" <?php if($twitter_active==false){ checked(true, true); } else { checked( $auto_tweet, 0 ); }?> ></input><label> <?php _e('自動投稿しない', 'cockpit'); ?></label></span><br><span><input type="radio" name="cockpit_auto_tweet" value="1" id="cockpit_auto_tweet" <?php if($twitter_active == true){ checked( $auto_tweet, 1 );} ?> <?php if($twitter_active==false) echo 'disabled="disabled"'; ?>></input><label id="cockpit_auto_tweet_label"> <?php _e('自動投稿する', 'cockpit'); ?></label></span>
+<span class="radio_align" ><input type="radio" name="cockpit_auto_tweet" id="cockpit_not_auto_tweet" value="0" <?php if($twitter_active==false){ checked(true, true); } else { checked( $auto_tweet, 0 ); }?> /><label for="cockpit_not_auto_tweet"> <?php _e('自動投稿しない', 'cockpit'); ?></label></span><br><span><input type="radio" name="cockpit_auto_tweet" value="1" id="cockpit_auto_tweet" <?php if($twitter_active == true){ checked( $auto_tweet, 1 );} ?> <?php if($twitter_active==false) echo 'disabled="disabled"'; ?>/><label id="cockpit_auto_tweet_label" for="cockpit_auto_tweet"> <?php _e('自動投稿する', 'cockpit'); ?></label></span>
 <?php if($twitter_active == false) { ?>
 <span class="caution">* <?php _e('自動投稿を有効化するには、利用するTwitterアカウントの設定が必要です。', 'cockpit'); ?></span>
 <?php } ?>
-</td></tr></table>
-<div class="cockpit_settings"><table class="sns_form_table"><tr><td class="form_td"><p><?php _e('投稿フォーマット', 'cockpit'); ?></p></td><td>
-<div><p><?php _e('投稿内容の前後に、あらかじめ決まった形式でコメントを設定しておくことができます。', 'cockpit'); ?></p><p><?php _e('コメント（前）', 'cockpit'); ?></p><input size="70" maxlength="30" type="text" name="cockpit_tweet_common_comment_before" onkeyup="jQuery('#cockpit_tweet_common_comment_before').text(value.length + ' / 30<?php _e('字', 'cockpit'); ?>');" value="<?php $comment_before = get_option('cockpit_tweet_common_comment_before'); echo $comment_before; ?>"></input><span id="cockpit_tweet_common_comment_before"><?php echo mb_strlen($comment_before); ?> / 30<?php _e('字', 'cockpit'); ?></span>
-<p><?php _e('コメント（後）', 'cockpit'); ?></p><input size="70" maxlength="30" type="text" name="cockpit_tweet_common_comment_after" onkeyup="jQuery('#cockpit_tweet_common_comment_after').text(value.length + ' / 30<?php _e('字', 'cockpit'); ?>');" value="<?php $comment_after = get_option('cockpit_tweet_common_comment_after'); echo $comment_after; ?>"></input><span id="cockpit_tweet_common_comment_after"><?php echo mb_strlen($comment_after); ?> / 30<?php _e('字', 'cockpit'); ?></span><br>
-<img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_sample-tw.png" />
-</div></td></tr></table></div>
+</div>
+</div>
+<div class="cockpit_settings">
+<div class="input_item">
+<div class="input_label">
+<p><?php _e('投稿フォーマット', 'cockpit'); ?></p>
+</div>
+<div class="input_value">
+<div><p><?php _e('投稿内容の前後に、あらかじめ決まった形式でコメントを設定しておくことができます。', 'cockpit'); ?></p><p><?php _e('コメント（前）', 'cockpit'); ?></p><input size="70" maxlength="30" type="text" name="cockpit_tweet_common_comment_before" onkeyup="jQuery('#cockpit_tweet_common_comment_before').text(value.length + ' / 30<?php _e('字', 'cockpit'); ?>');" value="<?php $comment_before = get_option('cockpit_tweet_common_comment_before'); echo $comment_before; ?>"/><span id="cockpit_tweet_common_comment_before"><?php echo mb_strlen($comment_before); ?> / 30<?php _e('字', 'cockpit'); ?></span>
+<p><?php _e('コメント（後）', 'cockpit'); ?></p><input size="70" maxlength="30" type="text" name="cockpit_tweet_common_comment_after" onkeyup="jQuery('#cockpit_tweet_common_comment_after').text(value.length + ' / 30<?php _e('字', 'cockpit'); ?>');" value="<?php $comment_after = get_option('cockpit_tweet_common_comment_after'); echo $comment_after; ?>"/><span id="cockpit_tweet_common_comment_after"><?php echo mb_strlen($comment_after); ?> / 30<?php _e('字', 'cockpit'); ?></span><br>
+<img src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/img_sample-tw.png" id="post_sample" />
+</div></div></div></div>
 <div class="btn_accordion"></div>
 <input type="hidden" name="action" value="update" /><input type="hidden" name="page_options" value="cockpit_tweet_password, cockpit_tweet_account, cockpit_auto_tweet, cockpit_tweet_common_comment_before, cockpit_tweet_common_comment_after, cockpit_tweet_contents" />
 <input class="button-primary" type="submit" <?php if( !$this->cockpit_is_twitter_registration() ) { echo 'onclick="OpenCockpitSNSAccountSettingPage();" '; } ?>name="submit" value="<?php _e('設定を保存する', 'cockpit'); ?>"/></div></form>
+</div>
 <?php
 	if( $this->is_active_cockpit_acount() ) {
 		$this->cockpit_account_off();
@@ -464,18 +512,31 @@ function cockpit_account_off() {
    }
 // --></script>
 <div class="cockpit_block"><form method="post" action="<?php str_replace('%7E', '~', $_SERVER['REQUEST_URI']); ?>">
-<table><tr><td><h3 class="header_caption"><?php _e('アカウント設定', 'cockpit'); ?></h3></td><td class="hrimg hr_caption"/></table>
+<table class="table_caption"><tr><td><h3 class="header_caption"><?php _e('アカウント設定', 'cockpit'); ?></h3></td><td class="hrimg hr_caption"/></table>
 <img id="just_account_logo" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/just_account.png"/>
-<table class="form_table">
-<tr><td class="form_td"><?php _e('メールアドレス', 'cockpit'); ?></td><td><input size="60" type="text" name="cockpit_account" autocomplete="off" value="<?php echo $cockpit_account; ?>" readonly /></td></tr>
-<tr><td><?php _e('パスワード', 'cockpit'); ?></td><td><input size="60" type="password" name="cockpit_password" autocomplete="off" value="<?php echo $cockpit_password; ?>" readonly /></td></tr></table>
+<div class="input_item">
+	<label for="cockpit_account"><?php _e('メールアドレス', 'cockpit'); ?></label>
+	<input size="60" type="text" name="cockpit_account" id="cockpit_account" autocomplete="off" value="<?php echo $cockpit_account; ?>" readonly />
+</div>
+<div class="input_item">
+	<label for="cockpit_password"><?php _e('パスワード', 'cockpit'); ?></label>
+	<input size="60" type="password" name="cockpit_password" id="cockpit_password" autocomplete="off" value="<?php echo $cockpit_password; ?>" readonly />
+</div>
 <h3><?php _e('アクセス解析するサイト', 'cockpit'); ?></h3>
-<table class="form_table">
-<tr><td><?php _e('あなたのサイト名', 'cockpit'); ?></td><td><?php echo get_option('cockpit_sitename'); ?></td></tr>
-<tr><td class="form_td"><?php _e('URL', 'cockpit'); ?></td><td><?php echo get_option('cockpit_siteurl'); ?></td></tr>
-<tr><td><?php _e('登録日時', 'cockpit'); ?></td><td><?php echo date('Y年m月d日', strtotime(get_option('cockpit_site_register_date'))); ?></td></tr>					
-</table>
-<input type="hidden" name="cockpit_delete_site" value="1"><input class="button-primary" id="cockpit_off" onClick="return confirmDeleteCockpitInfo();" type="submit" name="submit" value="<?php _e('コックピットとの連携を解除', 'cockpit'); ?>"/></p></form></div>
+<div class="input_item">
+	<p class="input_label"><?php _e('あなたのサイト名', 'cockpit'); ?></p>
+	<p class="input_value"><?php echo get_option('cockpit_sitename'); ?></p>
+</div>
+<div class="input_item">
+	<p class="input_label"><?php _e('URL', 'cockpit'); ?></p>
+	<p class="input_value"><?php echo get_option('cockpit_siteurl'); ?></p>
+</div>
+<div class="input_item">
+	<p class="input_label"><?php _e('登録日時', 'cockpit'); ?></p>
+	<p class="input_value"><?php echo date('Y年m月d日', strtotime(get_option('cockpit_site_register_date'))); ?></p>
+</div>
+<input type="hidden" name="cockpit_delete_site" value="1"><input class="button-primary" id="cockpit_off" onClick="return confirmDeleteCockpitInfo();" type="submit" name="submit" value="<?php _e('コックピットとの連携を解除', 'cockpit'); ?>"/>
+</form>
 <?php
 }
 
@@ -484,17 +545,21 @@ function cockpit_account_on() {
 	$cockpit_password = get_option('cockpit_password');
 ?>
 <div><form method="post" action="<?php str_replace('%7E', '~', $_SERVER['REQUEST_URI']); ?>">
-<table><tr><td><h3 class="header_caption"><?php _e('アカウント設定', 'cockpit'); ?></h3></td><td class="hrimg hr_caption"/></table>
+<table class="table_caption"><tr><td><h3 class="header_caption"><?php _e('アカウント設定', 'cockpit'); ?></h3></td><td class="hrimg hr_caption"/></table>
 <?php
 	$cockpit_account_url = 'http://www.justsystems.com/jp/links/hpb/cockpitapply.html';
 	printf( __('<p>Justアカウントに登録したメールアドレスとパスワードを入力して、［次へ］をクリックします。</p><br>', 'cockpit'), $cockpit_account_url );
 ?>
 <div id="hpb_aa_acount_form"><img id="just_account_logo" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/just_account.png"/>
-<table class="form_table">
-<tr><td><?php _e('メールアドレス', 'cockpit'); ?></td><td><input size="60" type="text" name="cockpit_account" autocomplete="off" value="<?php echo $cockpit_account; ?>" /></td></tr>
-<tr><td><?php _e('パスワード', 'cockpit'); ?></td><td><input size="60" type="password" name="cockpit_password" autocomplete="off" value="<?php echo $cockpit_password; ?>" /></td></tr>
-<tr><td></td><td><img id="reset_allow" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/reset_password.png" ><a class="link_noline" href="<?php $url_reset = $this->cockpit_get_reset_password($error); if($error === ''){ echo $url_reset;} ?>" target="_blank">パスワードをお忘れの方</a></td></tr>
-</table></div>
+<div class="input_item">
+	<label for="cockpit_account"><?php _e('メールアドレス', 'cockpit'); ?></label>
+	<input size="60" type="text" name="cockpit_account" id="cockpit_account" autocomplete="off" value="<?php echo $cockpit_account; ?>" />
+</div>
+<div class="input_item">
+	<label for="cockpit_password"><?php _e('パスワード', 'cockpit'); ?></label>
+	<input size="60" type="password" name="cockpit_password" id="cockpit_password" autocomplete="off" value="<?php echo $cockpit_password; ?>" />
+</div>
+</div>
 <p class="submit"><input type="hidden" name="cockpit_add_site" value="1"><input type="hidden" name="cockpit_plugin_url" value="<?php echo plugins_url( '', __FILE__ ); ?>"><input class="button-primary cockpit_next_button" type="submit" name="submit" id="dialog_link" value="<?php _e('次へ ≫', 'cockpit'); ?>"/></p>
 </form></div>
 <?php
@@ -595,7 +660,7 @@ function cockpit_get_post_sns_link_adminbar($echo, $post_title, $post_url) {
 	$token = $this->cockpit_get_token($error_token);
 	$cockpit_text = $this->cockpit_generate_twitter_text($post_title, $post_url);
 	$siteId = get_option(cockpit_siteId);
-	$message =  '<div style="height:28px; padding-left: 15px; background: url('.plugins_url( '', __FILE__ ).'/image/admin/icon_post.png) left center no-repeat;"><a style="vertical-align:middle;" href="https://web-cockpit.jp/app/#post/'.$token.'/'.$siteId.'/'.$cockpit_text.'" target="_blank" title="'.__('コックピットでTwitterに投稿', 'cockpit').'">'.__('コックピットで投稿', 'cockpit').'</a></div>';
+	$message =  '<a id="hpb_cockpit_post_sns_link" href="https://web-cockpit.jp/app/#post/'.$token.'/'.$siteId.'/'.$cockpit_text.'" target="_blank" title="'.__('コックピットでTwitterに投稿', 'cockpit').'">'.__('コックピットで投稿', 'cockpit').'</a>';
 	if($echo) {
 		echo $message;
 	} else {
@@ -718,6 +783,53 @@ function cockpit_add_adminbarmenu( &$wp_admin_bar ) {
 		$menu = array( 'id' => 'cockpit_postsns', 'title' => $this->cockpit_get_post_sns_link_adminbar(false, get_bloginfo('name'), esc_url(home_url())), 'href' => '' );
 		$wp_admin_bar->add_menu( $menu );
 	}
+}
+
+function cockpit_add_admin_css() {
+	global $wp_version;
+	$style = "
+<style type='text/css'>
+	#wpadminbar #hpb_cockpit_post_sns_link {
+		display: block;
+		text-indent: 24px;
+		background: url(".plugins_url( '', __FILE__ )."/image/admin/icon_post.png) left center no-repeat;
+		white-space: nowrap;
+		padding: 0;
+	}";
+	if ( version_compare( $wp_version, '3.8-beta-1', '>=' ) ){
+		$style = $style."
+	#wpadminbar #hpb_cockpit_post_sns_link {
+		color: #eee;
+	}
+	#wpadminbar #hpb_cockpit_post_sns_link:hover, #wpadminbar #hpb_cockpit_post_sns_link:active {
+		color: #2ea2cc;
+	}
+	@media (max-width: 782px) {
+	#wp-toolbar > ul > li#wp-admin-bar-cockpit_postsns {
+		display: block;
+	}
+	#wpadminbar #hpb_cockpit_post_sns_link {
+		text-indent: 100%;
+		background: url(".plugins_url( '', __FILE__ )."/image/admin/icon_post32.png) center no-repeat;
+		width: 50px;
+		height: 46px;
+		line-height: 46px;
+		overflow: hidden;
+	}
+	.fixed .column-cockpit_cooperation {
+		display: none;
+	}
+	}
+	@media (max-width: 400px) {
+	#wp-toolbar > ul > li#wp-admin-bar-cockpit_postsns {
+		display: none;
+	}
+	}";
+	}
+	$style = $style."
+</style>
+";
+	echo $style;
 }
 
 function cockpit_get_token(&$error, $mail_address = '', $password = '', &$error_code = null) {

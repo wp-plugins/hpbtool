@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb18_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.2.2
+Version: 1.2.3
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb18_wp_hpbdash
 License URI: license.txt
@@ -355,33 +355,37 @@ function hpb_dashborad_widget_option() {
 	wp_enqueue_style('hpb_dashboard_admin', HPB_PLUGIN_URL.'/hpb_dashboard_admin.css');
 ?>
 	<div id="hpb_dashboard_body">
-	<div id="hpb_dashboard_title" class="wrap"><h2><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/icon_hpb.png';?>">オプション</h2></div>
+	<div id="hpb_dashboard_title" class="wrap"><h2><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/icon_hpb.png';?>"/>オプション</h2></div>
 	<p>項目を選択して[設定を保存する]をクリックすると、画面の左側に表示されているメニューが切り替わります。</p>
 	<form method="post" action="options.php">
 	<?php wp_nonce_field('update-options'); ?>
-	<table class="hpb_form_table">
-	<tr><td colspan="2"><div class="annotation">※「カスタマイズ項目」については、サポートサービスを行っていません。<br/>「カスタマイズ項目」をONにして使用したり、「すべてのメニュー」を選択した場合は、サポート対象外となりますので、ご了承ください。</div></td></tr>
-	<tr><td>メニューのカスタマイズ</td> 
-	<td><input type="radio" name="hpb_hide_menus" value="1" <?php checked( get_option('hpb_hide_menus', 1 ), 1 ); ?>> かんたんメニュー
-	<p class="indent1">サイト更新によく使う機能をまとめたメニューです。WordPressを初めてお使いの方にお勧めです。<br/>用途に応じて、表示する項目をカスタマイズすることもできます。</p>
-	<div id="hpb_visible_settings">
-	<span class="indent1">カスタマイズ項目:</span><br/>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_dashbord" value="1" <?php checked( get_option('hpb_visible_menu_dashbord', 0 ), 1 ); ?>/><?php echo __('ダッシュボード'); ?></div>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_addpage" value="1" <?php checked( get_option('hpb_visible_menu_addpage', 0 ), 1 ); ?>/><?php echo __('固定ページ'); ?></div>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_media" value="1" <?php checked( get_option('hpb_visible_menu_media', 0 ), 1 ); ?>/><?php echo __('メディア'); ?></div>
-<?php if( current_user_can('manage_links')){ ?>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_link" value="1" <?php checked( get_option('hpb_visible_menu_link', 0 ), 1 ); ?>/><?php echo __('リンク'); ?></div>
-<?php } ?>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_themes" value="1" <?php checked( get_option('hpb_visible_menu_themes', 0 ), 1 ); ?>/><?php echo __('外観'); ?></div>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_tools" value="1" <?php checked( get_option('hpb_visible_menu_tools', 0 ), 1 ); ?>/><?php echo __('ツール'); ?></div>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_users" value="1" <?php checked( get_option('hpb_visible_menu_users', 0 ), 1 ); ?>/><?php echo __('ユーザー'); ?></div>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_options" value="1" <?php checked( get_option('hpb_visible_menu_options', 0 ), 1 ); ?>/><?php echo __('設定'); ?></div>
-	<div class="indent1"><input type="checkbox" name="hpb_visible_menu_plugins" value="1" <?php checked( get_option('hpb_visible_menu_plugins', 0 ), 1 ); ?>/><?php echo __('プラグイン'); ?></div>
+	<div class="annotation">※「カスタマイズ項目」については、サポートサービスを行っていません。<br/>「カスタマイズ項目」をONにして使用したり、「すべてのメニュー」を選択した場合は、サポート対象外となりますので、ご了承ください。</div>
+	<div id="hpb_menu_customize">
+		<div id="hpb_menu_customize_title">メニューのカスタマイズ</div>
+		<div id="hpb_menu_customize_option">
+			<input type="radio" name="hpb_hide_menus" id="hpb_hide_menus1" value="1" <?php checked( get_option('hpb_hide_menus', 1 ), 1 ); ?> /><label for="hpb_hide_menus1"> かんたんメニュー</label>
+			<p class="indent1">サイト更新によく使う機能をまとめたメニューです。WordPressを初めてお使いの方にお勧めです。<br/>用途に応じて、表示する項目をカスタマイズすることもできます。</p>
+			<div id="hpb_visible_settings">
+			<span class="indent1">カスタマイズ項目:</span><br/>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_dashbord" id="hpb_visible_menu_dashbord" value="1" <?php checked( get_option('hpb_visible_menu_dashbord', 0 ), 1 ); ?>/><label for="hpb_visible_menu_dashbord"><?php echo __('ダッシュボード'); ?></label></div>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_addpage" id="hpb_visible_menu_addpage" value="1" <?php checked( get_option('hpb_visible_menu_addpage', 0 ), 1 ); ?>/><label for="hpb_visible_menu_addpage"><?php echo __('固定ページ'); ?></label></div>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_media" id="hpb_visible_menu_media" value="1" <?php checked( get_option('hpb_visible_menu_media', 0 ), 1 ); ?>/><label for="hpb_visible_menu_media"><?php echo __('メディア'); ?></label></div>
+		<?php if( current_user_can('manage_links')){ ?>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_link" id="hpb_visible_menu_link" value="1" <?php checked( get_option('hpb_visible_menu_link', 0 ), 1 ); ?>/><label for="hpb_visible_menu_link"><?php echo __('リンク'); ?></label></div>
+		<?php } ?>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_themes" id="hpb_visible_menu_themes" value="1" <?php checked( get_option('hpb_visible_menu_themes', 0 ), 1 ); ?>/><label for="hpb_visible_menu_themes"><?php echo __('外観'); ?></label></div>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_tools" id="hpb_visible_menu_tools" value="1" <?php checked( get_option('hpb_visible_menu_tools', 0 ), 1 ); ?>/><label for="hpb_visible_menu_tools"><?php echo __('ツール'); ?></label></div>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_users" id="hpb_visible_menu_users" value="1" <?php checked( get_option('hpb_visible_menu_users', 0 ), 1 ); ?>/><label for="hpb_visible_menu_users"><?php echo __('ユーザー'); ?></label></div>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_options" id="hpb_visible_menu_options" value="1" <?php checked( get_option('hpb_visible_menu_options', 0 ), 1 ); ?>/><label for="hpb_visible_menu_options"><?php echo __('設定'); ?></label></div>
+			<div class="indent1"><input type="checkbox" name="hpb_visible_menu_plugins" id="hpb_visible_menu_plugins" value="1" <?php checked( get_option('hpb_visible_menu_plugins', 0 ), 1 ); ?>/><label for="hpb_visible_menu_plugins"><?php echo __('プラグイン'); ?></label></div>
+			</div>
+			<p><input type="radio" name="hpb_hide_menus" id="hpb_hide_menus2" value="0" <?php checked( get_option('hpb_hide_menus', 1 ), 0 ); ?> /><label for="hpb_hide_menus2"> すべてのメニュー</label></p>
+			<p class="indent1">WordPressのすべての機能が使えます。WordPressを使い慣れている方にお勧めです。</p>
+		</div>
 	</div>
-	<p><input type="radio" name="hpb_hide_menus" value="0" <?php checked( get_option('hpb_hide_menus', 1 ), 0 ); ?>> すべてのメニュー</p>
-	<p class="indent1">WordPressのすべての機能が使えます。WordPressを使い慣れている方にお勧めです。</p></td></tr>
-	<tr><td colspan="2"><input type="checkbox" name="hpb_site_private" value="1" <?php checked( get_option('hpb_site_private', 0 ), 1 ); ?>/><?php echo __(' サイトを非公開にする。サイトの閲覧にログインが必要になります。'); ?></tr></td>
-	</table>
+	<div id="hpb_private_customize">
+		<input type="checkbox" name="hpb_site_private" id="hpb_site_private" value="1" <?php checked( get_option('hpb_site_private', 0 ), 1 ); ?>/><label for="hpb_site_private"><?php echo __(' サイトを非公開にする。サイトの閲覧にログインが必要になります。'); ?></label>
+	</div>
 	<input type="hidden" name="action" value="update" />
 	<input type="hidden" name="page_options" value="hpb_hide_menus, hpb_visible_menu_dashbord, hpb_visible_menu_addpage, hpb_visible_menu_media, hpb_visible_menu_widgets, hpb_visible_menu_link, hpb_visible_menu_themes, hpb_visible_menu_tools, hpb_visible_menu_users, hpb_visible_menu_options, hpb_visible_menu_plugins, hpb_site_private" />
 	<br><input type="submit" class="button-primary" value="<?php _e('設定を保存する') ?>" />

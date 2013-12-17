@@ -10,12 +10,15 @@ function hpb_form_page() {
 	<?php wp_nonce_field('update-options'); ?>
 	<div id="hpb_dashboard_title" class="wrap"><h2><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/icon_hpb.png';?>">フォーム設定</h2></div>
 	<p>サイトに設置する問い合わせフォームの宛先や、入力画面に表示されるメッセージの設定を行います。</p>
-	<table class="hpb_form_table" >
-	<tr><td colspan="2"><div class="hpb_caption">送信先</div></td></tr>
-	<tr><td><span class="indent1">送信先メールアドレス</span></td><td><input size="60" type="text" name="hpb_form_mail_address" value="<?php echo get_option('hpb_form_mail_address'); ?>"/></td></tr>
-	<tr><td colspan="2"><div class="hpb_caption">メッセージ表示</div></td></tr>
-
-	<tr><td><span class="indent1">必須項目が未入力の場合</span></td><td class="hpb_form_editor">
+	<div class="hpb_caption">送信先</div>
+	<p>
+		<label for="hpb_form_mail_address" class="label">送信先メールアドレス</label>
+		<input size="60" type="text" name="hpb_form_mail_address" id="hpb_form_mail_address" value="<?php echo get_option('hpb_form_mail_address'); ?>"/>
+	</p>
+	<div class="hpb_caption">メッセージ表示</div>
+	<div class="hpb_form_editor">
+		<label for="hpbformreplyeditormust" class="label">必須項目が未入力の場合</label>
+		<div class="wp-editor-wrap">
 <?php
 	$content_reply_must = hpb_form_get_reply_must();
 	$settings = array(
@@ -24,7 +27,12 @@ function hpb_form_page() {
         );
 	wp_editor( $content_reply_must, 'hpbformreplyeditormust', $settings);
 ?>
-	</td></tr><tr><td><span class="indent1">送信が成功した場合</span></td><td class="hpb_form_editor">
+		</div>
+	</div>
+	<div class="hpb_form_editor">
+	
+		<label for="hpbformreplyeditor" class="label">送信が成功した場合</label>
+		<div class="wp-editor-wrap">
 <?php
 	$content_reply = hpb_form_get_reply();
 	$settings = array(
@@ -33,7 +41,12 @@ function hpb_form_page() {
         );
 	wp_editor( $content_reply, 'hpbformreplyeditor', $settings);
 ?>
-	</td></tr><tr><td><span class="indent1">送信が失敗した場合</span></td><td class="hpb_form_editor">
+		</span>
+	</div>
+
+	<div class="hpb_form_editor">
+		<label for="hpbformreplyeditor" class="label">送信が失敗した場合</label>
+		<div class="wp-editor-wrap">
 <?php
 	$content_reply_error = hpb_form_get_reply_error();
 	$settings = array(
@@ -42,7 +55,8 @@ function hpb_form_page() {
         );
 	wp_editor( $content_reply_error, 'hpbformreplyeditorerror', $settings);
 ?>
-	</td></tr></table>
+		</div>
+	</div>
 	<input type="hidden" name="action" value="update" />
 	<input type="hidden" name="page_options" value="hpb_form_mail_address, hpb_form_reply, hpb_form_reply_error, hpb_form_reply_must" />
 	<p class="submit">
