@@ -197,6 +197,11 @@ label {
 	margin-top: 12px;
 }
 
+.dialog_add_social_button_confirm .ui-dialog-content {
+	position: static;
+	padding: 0;
+}
+
 .hpb_social_button {
 	margin: 15px;
 }
