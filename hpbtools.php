@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: hpb Dashboard
-Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb18_wp_hpbdash 
+Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb19_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.2.4
+Version: 1.2.5
 Author: JustSystems
-Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb18_wp_hpbdash
+Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb19_wp_hpbdash
 License URI: license.txt
 */
 
@@ -419,7 +419,7 @@ function hpb_dashboard_widget_function() {
 	<li class="hpb_menu_item"><a href='edit-comments.php?comment_status=approved' id="<?php if($comment_counts->approved == 0 ) { echo 'hpb_comment_view_btn3';} elseif($comment_counts->approved < 100 ) { echo 'hpb_comment_view_btn';} else { echo 'hpb_comment_view_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts->approved == 0 ) { echo ' displaynone';} ?>"><?php echo $comment_counts->approved; ?></span></a></li></ul></td>
 </tr><tr>
 	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/cockpit_icon.png"></td>
-	<td><ul><li class="hpb_menu_item"><a href='http://www.justsystems.com/jp/links/hpb/cp.html?p=hpb18_wp_hpbdash' id="hpb_cockpit_check_btn" target="_blank"></a></li></ul></td>
+	<td><ul><li class="hpb_menu_item"><a href='http://www.justsystems.com/jp/links/hpb/cp.html?p=hpb19_wp_hpbdash' id="hpb_cockpit_check_btn" target="_blank"></a></li></ul></td>
 </tr><tr>
 	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/seo_icon.png"></td>
 	<td><ul><li class="hpb_menu_item"><a href='https://kantan-access.com/jana_webapp/login.do' id="hpb_aa_check_btn" target="_blank"></a></li></ul></td>
@@ -442,8 +442,8 @@ function hpb_dashboard_widget_function() {
 <?php  } ?>
 <tr><td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/help_icon.png"/></td>
 <td><ul class="hpb_option_settings_category hpb_menu_list">
-	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb18_wp_hpbdash" id="hpb_help" target="_blank"></a></li>
-	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://support.justsystems.com/jp/app/servlet/productslink?apl=hpb18" id="hpb_faq" target="_blank"></a></li>
+	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb19_wp_hpbdash" id="hpb_help" target="_blank"></a></li>
+	<li class="hpb_option_setting hpb_option_menu_item"><a href="http://support.justsystems.com/jp/app/servlet/productslink?apl=hpb19" id="hpb_faq" target="_blank"></a></li>
 </ul>
 <div class="hpb_clearboth"></div></td></tr></table>
 <?php
@@ -557,7 +557,7 @@ add_action( 'admin_menu', 'change_post_menu_label' );
 
 add_action( 'admin_footer_text', 'custom_admin_footer' );
 function custom_admin_footer() {
-    echo '<a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb18_wp_hpbdash" target="_blank"/>hpbダッシュボードで投稿・集客 PDFマニュアル</a>';
+    echo '<a href="http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb19_wp_hpbdash" target="_blank"/>hpbダッシュボードで投稿・集客 PDFマニュアル</a>';
 }
 
 add_action( 'admin_print_styles', 'hpb_plugin_admin_styles' );

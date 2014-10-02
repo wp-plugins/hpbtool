@@ -31,8 +31,22 @@ function hpb_social_page()
  $array_data = explode( ',', $hpb_social_buttons_order );
  foreach( $array_data as $social_button_id ) {
 	if( $social_button_id != '' ) {
+		
+		if( $social_button_id == 'linebutton_vertical' ) {
+			$button_size = ' width="36" height="60"';
+		} else if ( $social_button_id == 'linebutton_horizontal' ) {
+			$button_size = ' width="82" height="20"';
+		} else if ( $social_button_id == 'linebutton_large' ) {
+			$button_size = ' width="40" height="40"';
+		} else if ( $social_button_id == 'linebutton_medium' ) {
+			$button_size = ' width="30" height="30"';
+		} else if ( $social_button_id == 'linebutton_small' ) {
+			$button_size = ' width="20" height="20"';
+		} else {
+			$button_size = '';
+		}
 ?>
- <li id="<?php echo $social_button_id; ?>"><img id="<?php echo $social_button_id; ?>" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/<?php echo $social_button_id; ?>.png"></li>
+ <li id="<?php echo $social_button_id; ?>"><img id="<?php echo $social_button_id; ?>" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/<?php echo $social_button_id; ?>.png"<?php echo $button_size; ?>></li>
 <?php
 	}
  }
@@ -51,7 +65,7 @@ function hpb_social_page()
 	<li><a href="#googleplus_tab">Google +1</a></li>
 	<li><a href="#mixicheck_tab">mixiチェック/mixiイイネ!</a></li>
 	<li><a href="#hatenabookmark_tab">はてなブックマーク</a></li>
-	<li><a href="#evernoteclip_tab">Evernoteサイトメモリー</a></li>
+	<li><a href="#sendbyline_tab">LINEで送る</a></li>
 	</ul>
 <div id="tweet_tab">
 	<div class="socialType" id="tweet">
@@ -118,11 +132,14 @@ function hpb_social_page()
 	</ul>
 	</div>
 </div>
-<div id="evernoteclip_tab">
-	<div class="socialType" id="evernoteclip">
+<div id="sendbyline_tab">
+	<div class="socialType" id="sendbyline">
 	<ul class="buttonTypes">
-	<li id="evernote_clip_horizontal"><img id="evernote_clip_horizontal" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/evernote_clip_horizontal.png"></li>
-	<li id="evernote_clip_vertical"><img id="evernote_clip_vertical" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/evernote_clip_vertical.png"></li>
+	<li id="linebutton_horizontal"><img id="linebutton_horizontal" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/linebutton_horizontal.png" width="82" height="20"></li>
+	<li id="linebutton_vertical"><img id="linebutton_vertical" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/linebutton_vertical.png" width="36" height="60"></li>
+	<li id="linebutton_large"><img id="linebutton_large" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/linebutton_large.png" width="40" height="40"></li>
+	<li id="linebutton_medium"><img id="linebutton_medium" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/linebutton_medium.png" width="30" height="30"></li>
+	<li id="linebutton_small"><img id="linebutton_small" src="<?php echo HPB_PLUGIN_URL; ?>/image/social_button/linebutton_small.png" width="20" height="20"></li>
 	</ul>
 	</div>
 </div>
@@ -249,14 +266,25 @@ function hpb_social_the_content( $content ) {
 				} 
 				$hatena_bookmark = '<div><a href="http://b.hatena.ne.jp/entry/'.get_permalink().'" class="hatena-bookmark-button" data-hatena-bookmark-title="'.get_the_title() .'" data-hatena-bookmark-layout="'.$hatema_bookmark_layout.'" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script></div>'."\n";
 				$content_social .= $hatena_bookmark;
-			} else if ( $social_button_id == 'evernote_clip_horizontal' || $social_button_id == 'evernote_clip_vertical' ) {
-				if( $social_button_id == 'evernote_clip_horizontal' ) {
-					$evernote_clip_layout = 'article-clipper.png';
-				} else if ( $social_button_id == 'evernote_clip_vertical' ) {
-					$evernote_clip_layout = 'article-clipper-vert.png';
+			} else if ( $social_button_id == 'linebutton_vertical' || $social_button_id == 'linebutton_horizontal' || $social_button_id == 'linebutton_large' || $social_button_id == 'linebutton_medium' || $social_button_id == 'linebutton_small' ) {
+				if( $social_button_id == 'linebutton_vertical' ) {
+					$line_button_width = '36';
+					$line_button_height = '60';
+				} else if ( $social_button_id == 'linebutton_horizontal' ) {
+					$line_button_width = '82';
+					$line_button_height = '20';
+				} else if ( $social_button_id == 'linebutton_large' ) {
+					$line_button_width = '40';
+					$line_button_height = '40';
+				} else if ( $social_button_id == 'linebutton_medium' ) {
+					$line_button_width = '30';
+					$line_button_height = '30';
+				} else if ( $social_button_id == 'linebutton_small' ) {
+					$line_button_width = '20';
+					$line_button_height = '20';
 				}
-				$evernote_clip = '<div><a href="#" onclick="Evernote.doClip({url:\''.get_permalink().'\', title:\''.get_the_title().'\'}); return false;"><img src="http://static.evernote.com/'.$evernote_clip_layout.'" alt="Clip to Evernote" style="border:none"></a><script type="text/javascript" src="http://static.evernote.com/noteit.js"></script></div>'."\n";
-				$content_social .= $evernote_clip;
+				$send_by_line = '<div><a href="http://line.me/R/msg/text/?'.urlencode(get_the_title()) .'%0D%0A'.urlencode(get_permalink()) .'" class="send-by-line-button" target="blank"><img src="'.HPB_PLUGIN_URL.'/image/social_button/'.$social_button_id.'.png" width="'.$line_button_width.'" height="'.$line_button_height.'" alt="LINEで送る" style="border:none"></a></div>'."\n";
+				$content_social .= $send_by_line;
 			} 
 		}
 	}
@@ -280,7 +308,7 @@ function hpb_social_the_content( $content ) {
 }
 
 function hpb_get_social_buttons_order() {
-	return get_option( 'hpb_social_buttons_order', 'facebook_like_vertical,google_plusone_vertical,tweet_vertical,hatena_bookmark_vertical,evernote_clip_vertical' );
+	return get_option( 'hpb_social_buttons_order', 'facebook_like_vertical,google_plusone_vertical,tweet_vertical,hatena_bookmark_vertical,linebutton_vertical' );
 }
 
 function hpb_head_social() {

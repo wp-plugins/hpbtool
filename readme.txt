@@ -3,15 +3,15 @@ Contributors: justsystems
 Author URI: http://www.justsystems.com/
 Tags: hpb Dashboard, japanese, hpb18, hpb17, plugin, data importer, social button, inquiry form, access analysis
 Requires at least: 3.4
-Tested up to: 3.8
+Tested up to: 4.0
 Stable tag: trunk
 
-"hpb Dashboard" plug-in is the data importer for "Home Page Builder 17/18".
+"hpb Dashboard" plug-in is the data importer for "Home Page Builder 17/18/19".
 
 == Description ==
 
-"hpb Dashboard" plug-in has the function which imports data created by "Home Page Builder 17/18" into WordPress website.
-"Home Page Builder 17/18" is a software which assists people to design their websites.
+"hpb Dashboard" plug-in has the function which imports data created by "Home Page Builder 17/18/19" into WordPress website.
+"Home Page Builder 17/18/19" is a software which assists people to design their websites.
 Moreover, this plug-in has the following functions elsewhere.
 
 * customizes the dashboard
@@ -26,7 +26,7 @@ Moreover, this plug-in has the following functions elsewhere.
 
 == Screenshots ==
 
-1. The "hpb Dashboard" home view. This is where you can import data created by "Home Page Builder 17/18" into WordPress site. You can check out "Home Page Builder 17/18" on this website[http://www.justsystems.com/jp/products/hpb/].
+1. The "hpb Dashboard" home view. This is where you can import data created by "Home Page Builder 17/18/19" into WordPress site. You can check out "Home Page Builder 17/18/19" on this website[http://www.justsystems.com/jp/products/hpb/].
 2. The menus in home view. You can post articles, check site status and change "hpb Dashboard" options.
 3. The social buttons setup view. You can arrange social buttons in the wordpress site.
 4. The inquiry form setup view. You can set the notification email address and messages shown in the form page.
