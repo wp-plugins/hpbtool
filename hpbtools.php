@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb19_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.2.5
+Version: 1.2.6
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb19_wp_hpbdash
 License URI: license.txt
@@ -44,7 +44,6 @@ function hpb_admin_home() {
 			hpb_import_page();
 			hpb_install_seo_plugin();
 		}
-		hpb_cockpit_service_info();
 		hpb_guidance_activate_multibyte_patch();
 		hpb_guidance_new_post();
 		hpb_dashboard_widget_function();

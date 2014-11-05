@@ -243,12 +243,6 @@ jQuery( function() {
 }
 }
 
-function cockpit_hdr_image_caption() {
-?>
-<div class="hdr_image_caption"><?php _e('SNS連携アクセス解析サービス『コックピット』との連携により、Twitterにサイトの更新連絡やお知らせを自動投稿できます。<br>ご利用には、サービスへの登録とアカウント設定が必要です。', 'cockpit'); ?></div>
-<?php
-}
-
 function cockpit_admin_home() {
 	wp_enqueue_style('cockpit_style', plugins_url( '', __FILE__ ).'/cockpit_style.css');
 	wp_enqueue_script('jquery');
@@ -329,15 +323,9 @@ function cockpit_admin_home() {
 	<?php wp_nonce_field('cockpit-options');
 	if( !$this->is_active_cockpit_acount() ) { ?>
 <div class="position_box">
-<?php if( get_option('cockpit_registered', 0 ) == 1 ) { ?>
 <img class="hdr_img" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/hdr_img-off.png" />
 <a href="https://web-cockpit.jp/"  class="cockpit_catch_link btn_cockpit" target="_blank"></a>
-<?php } else { ?>
-<img class="hdr_img" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/hdr_img-entry.png" />
-<a href="https://www.justsystems.com/jp/links/ccptplg/cpapply.html?p=ccptplg" class="cockpit_catch_link btn_entry" target="_blank" class="button-secondary" ></a>
-<?php } ?>
 </div>
-<?php $this->cockpit_hdr_image_caption(); ?>
 <?php
 		$this->cockpit_account_on();
 
@@ -350,7 +338,6 @@ function cockpit_admin_home() {
 <img class="hdr_img" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/hdr_img-on.png" />
 <a href="https://web-cockpit.jp/app/#login3/<?php echo $token.'/'.get_option('cockpit_siteId'); ?>" class="cockpit_catch_link btn_cockpit" target="_blank" ></a>
 </div>
-<?php $this->cockpit_hdr_image_caption(); ?>
 <?php
 		$this->cockpit_settings($token);
 	}
@@ -361,8 +348,10 @@ function cockpit_admin_home() {
 
 function cockpit_confirm_site_page($sites) {
 ?>
-<img class="hdr_img" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/hdr_img-entry_g.png" />
-<?php $this->cockpit_hdr_image_caption(); ?>
+<div class="position_box">
+<img class="hdr_img" src="<?php echo plugins_url( '', __FILE__ ); ?>/image/admin/hdr_img-off.png" />
+<a href="https://web-cockpit.jp/"  class="cockpit_catch_link btn_cockpit" target="_blank"></a>
+</div>
 <table><tr><td><h3 class="header_caption"><?php _e('アカウント設定', 'cockpit'); ?></h3></td><td class="hrimg hr_caption"/></table>
 <?php
 $site = null;

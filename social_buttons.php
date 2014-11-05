@@ -283,7 +283,7 @@ function hpb_social_the_content( $content ) {
 					$line_button_width = '20';
 					$line_button_height = '20';
 				}
-				$send_by_line = '<div><a href="http://line.me/R/msg/text/?'.urlencode(get_the_title()) .'%0D%0A'.urlencode(get_permalink()) .'" class="send-by-line-button" target="blank"><img src="'.HPB_PLUGIN_URL.'/image/social_button/'.$social_button_id.'.png" width="'.$line_button_width.'" height="'.$line_button_height.'" alt="LINEで送る" style="border:none"></a></div>'."\n";
+				$send_by_line = '<div><a href="http://line.me/R/msg/text/?'.urlencode(get_the_title()) .'%0D%0A'.urlencode(get_permalink()) .'" class="send-by-line-button" target="blank"><img src="'.HPB_PLUGIN_URL.'/image/social_button/'.$social_button_id.'.png" width="'.$line_button_width.'" height="'.$line_button_height.'" alt="LINEで送る" style="border:none; width:'.$line_button_width.'px !important; height:'.$line_button_height.'px !important;"></a></div>'."\n";
 				$content_social .= $send_by_line;
 			} 
 		}

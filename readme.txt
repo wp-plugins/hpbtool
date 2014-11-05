@@ -1,7 +1,7 @@
 === hpb Dashboard ===
 Contributors: justsystems
 Author URI: http://www.justsystems.com/
-Tags: hpb Dashboard, japanese, hpb18, hpb17, plugin, data importer, social button, inquiry form, access analysis
+Tags: hpb Dashboard, japanese, hpb19, hpb18, hpb17, plugin, data importer, social button, inquiry form, access analysis
 Requires at least: 3.4
 Tested up to: 4.0
 Stable tag: trunk

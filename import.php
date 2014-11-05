@@ -194,25 +194,32 @@ function hpb_import_xml( $post ) {
 	$version = $xml['version'];
 	if ( $version == '' ) {
 		$compmode = true;
+		$pagelink = false;
 	} else {
 		$vlist = explode( ".", $version );
 		$major = intval( $vlist[0] );
 		$minor = intval( $vlist[1] );
 		if ( $major < 1 || ( $major == 1 && $minor < 1 ) ) {
 			$compmode = true;
+			$pagelink = false;
 		} else {
 			$compmode = false;
+			if ( $major > 1 || $minor > 1 ) {
+				$pagelink = true;
+			} else {
+				$pagelink = false;
+			}
 		}
 	}
 
 	//create nav menu
 	$menus = array(); 
 	foreach ( $xml->menu as $menu ) {
-		$exist_menu = get_term_by( 'name', strval( $menu->name ), 'nav_menu' );
+		$exist_menu = get_term_by( 'name', $menu->name, 'nav_menu' );
 		if( $exist_menu == false ) {
-			$new_menu = wp_create_nav_menu( strval( $menu->name ) );
+			$new_menu = wp_create_nav_menu( $menu->name );
 			if( !is_wp_error( $new_menu ) ) {
-				$menus[ strval( $menu->name ) ] =  wp_get_nav_menu_object( $new_menu );
+				$menus[ (string) $menu->name ] =  wp_get_nav_menu_object( $new_menu );
 				if( $new_menu ){
 					$locations = get_theme_mod( 'nav_menu_locations' );
 					$locations[ strval( $menu->location ) ] = $new_menu;
@@ -220,7 +227,7 @@ function hpb_import_xml( $post ) {
 				}
 			}
 		} else {
-			$menus[ strval( $menu->name ) ] =  $exist_menu;
+			$menus[ (string) $menu->name ] =  $exist_menu;
 			if( $exist_menu ){
 				$locations = get_theme_mod( 'nav_menu_locations' );
 				$locations[ strval( $menu->location ) ] = $exist_menu->term_id;
@@ -268,6 +275,7 @@ function hpb_import_xml( $post ) {
 	$menu_items = wp_get_nav_menu_items( $parent_menu->term_id, array('post_status' => 'any') );
 	$exists = get_pages( array( 'post_status' => array( 'publish', 'pending', 'draft', 'future', 'private', 'inherit' ) ) );
 	$exist_pages = array();
+	$id_pages = array();
 	foreach ( $exists as $exist ) {
 		if( get_post_status( $exist->ID ) != 'trash' && ! $exist_pages[ $exist->post_title ] ) {
 			$exist_pages[ $exist->post_title ] = $exist;
@@ -284,7 +292,7 @@ function hpb_import_xml( $post ) {
 			if ( $item->post_type == 'page' ) {
 				$exist_page = $exist_pages[ $title ];
 				if ( ! $exist_page ){
-					$exist_page = $exist_pages[ strval( $item->title ) ];
+					$exist_page = $exist_pages[ (string) $item->title ];
 				}
 				if ( $exist_page ){
 					$bexist = true;
@@ -316,15 +324,15 @@ function hpb_import_xml( $post ) {
 				} else {
 					/* add page */
 					$add_post = array(
-						'post_author'    => strval( $user->ID ),
-						'post_title'     => strval( $title ),
-						'post_status'    => strval( $item->status ),
-						'comment_status' => strval( $item->comment_status ),
-						'ping_status'    => strval( $item->ping_status ),
-						'post_name'      => strval( $item->post_name ),
-						'post_content'   => strval( $item->content ),
-						'post_type'      => strval( $item->post_type ),
-						'post_parent'	 => strval( $post_parent )
+						'post_author'    => $user->ID,
+						'post_title'     => addslashes($title),
+						'post_status'    => $item->status,
+						'comment_status' => $item->comment_status,
+						'ping_status'    => $item->ping_status,
+						'post_name'      => $item->post_name,
+						'post_content'   => $item->content,
+						'post_type'      => $item->post_type,
+						'post_parent'	 => $post_parent
 					);
 					$new_page = wp_insert_post( $add_post );
 					if ( $new_page != 0 && $item->status != 'trash' ) {
@@ -353,19 +361,19 @@ function hpb_import_xml( $post ) {
 				}
 			}
 			if ( $bexist == true && $new_page != 0 ) {
-				if ( isset($post[strval($new_page)]) && $post[strval($new_page)] == 'noaction' ) {
+				if ( isset( $post[ (string) $new_page ] ) && $post[ (string) $new_page ] == 'noaction' ) {
 				} else {
 					/* update page */
 					$update_post = array(
 						'ID'             => $new_page,
-						'post_author'    => strval( $user->ID ),
-						'post_title'     => strval( $title ),
-						'post_status'    => strval( $item->status ),
-						'comment_status' => strval( $item->comment_status ),
-						'ping_status'    => strval( $item->ping_status ),
-						'post_content'   => strval( $item->content ),
-						'post_type'      => strval( $item->post_type ),
-						'post_parent'	 => strval( $post_parent )
+						'post_author'    => $user->ID,
+						'post_title'     => addslashes($title),
+						'post_status'    => $item->status,
+						'comment_status' => $item->comment_status,
+						'ping_status'    => $item->ping_status,
+						'post_content'   => $item->content,
+						'post_type'      => $item->post_type,
+						'post_parent'	 => $post_parent
 					);
 					wp_update_post( $update_post );
 					update_post_meta( $new_page, '_wp_page_template', strval( $item->template_name ) );
@@ -384,6 +392,10 @@ function hpb_import_xml( $post ) {
 				}
 			}
 
+			if ( $item->page_id && $new_page != 0 ) {
+				$id_pages[ (string) $item->page_id ] = get_post( $new_page );
+			}
+
 			if ( $new_page != 0 && $item->front_page == 1 ) {
 				update_option( 'page_on_front', $new_page );
 				update_option( 'page_for_posts', 0 );
@@ -398,7 +410,7 @@ function hpb_import_xml( $post ) {
 					continue;
 				}
 				$parent_menu = $menus[ strval( $menu->parent_menu ) ];
-				$menu_title = strval( $title );
+				$menu_title = $title;
 				if( $menu->menu_title != '' ) {
 					$menu_title = $menu->menu_title;
 				}
@@ -422,6 +434,45 @@ function hpb_import_xml( $post ) {
 			}
 		}
 	}
+	if ( $pagelink == true ){
+		foreach ( $id_pages as $page ) {
+			if ( isset( $post[ $page->ID ] ) && $post[ $page->ID ] == 'noaction' ) {
+				continue;
+			}
+			$post_content = $page->post_content;
+			$offset = 0;
+			$hpbpagelink = '[hpbpagelink ';
+			$hpbpagelink_len = strlen( $hpbpagelink );
+			for (; ; $offset ++ ) {
+				if ( $offset > strlen( $post_content ) - 2 ) {
+					break;
+				}
+				if ( substr( $post_content, $offset, 1 ) == '\\' ) {
+					$post_content = substr( $post_content, 0, $offset ) . substr( $post_content, $offset + 1 );
+				} else if ( strlen( $post_content ) >= $offset + $hpbpagelink_len ) {
+					if ( substr_compare( $post_content, $hpbpagelink, $offset, $hpbpagelink_len ) == 0 ) {
+						$pagelink_top = $offset + $hpbpagelink_len;
+						$pagelink_end = strpos( $post_content, ']', $pagelink_top );
+						if( $pagelink_end !== false ) {
+							$page_id = trim( substr( $post_content, $pagelink_top, $pagelink_end - $pagelink_top ) );
+							if ( isset( $id_pages[ $page_id ] ) ) {
+								$pagelink_url = get_page_link( $id_pages[ $page_id ]->ID );
+								$post_content = substr_replace( $post_content, $pagelink_url, $offset, $pagelink_end + 1 - $offset );
+								$pagelink_end = $offset + strlen( $pagelink_url ) - 1;
+							}
+						}
+						$offset = $pagelink_end;
+					}
+				}
+			}
+			/* update page */
+			$update_post = array(
+				'ID'             => $page->ID,
+				'post_content'   => addslashes($post_content)
+			);
+			wp_update_post( $update_post );
+		}
+	}
 	if ( $compmode == false && $_POST['update_custom_menu'] == 1 ) {
 		// delete link menu by hpb
 	 	$deletelinkmenulistids  = explode( ',', get_option( 'hpb_plugin_linkmenu_byhpb', '') );
@@ -435,7 +486,7 @@ function hpb_import_xml( $post ) {
 		$linkmenulist = array();
 
 		foreach ( $xml->menu as $menu ) {
-			$parent_menu = $menus[ strval( $menu->name ) ];
+			$parent_menu = $menus[ (string) $menu->name ];
 			hpb_make_menu( $menu, $parent_menu, 0, $exist_pages, $menu_items, $linkmenulist );
 		}
 
@@ -460,13 +511,13 @@ function hpb_make_menu( &$menu, &$parent_menu, $parent_id, &$exist_pages, &$menu
 				$name = esc_html( $menu_item->page );
 				$exist_page = $exist_pages[ $name ];
 				if ( ! $exist_page ) {
-					$exist_page = $exist_pages[ strval( $menu_item->page ) ];
+					$exist_page = $exist_pages[ (string) $menu_item->page ];
 				}
 				if ( $exist_page ){
 					$post_id = strval( $exist_page->ID );
-					$title = strval( $menu_item->title );
+					$title = addslashes( $menu_item->title );
 					if ( $title == '' ) {
-						$title = strval( $exist_page->title );
+						$title = (string) $exist_page->title;
 					}
 					$custommenu_db_id = 0;
 					foreach( (array) $menu_items as $exist_menu ) {
@@ -499,8 +550,8 @@ function hpb_make_menu( &$menu, &$parent_menu, $parent_id, &$exist_pages, &$menu
 						'menu-item-parent-id'   => $parent_id,
 						'menu-item-position'    => $pos,
 						'menu-item-type'        => 'custom',
-						'menu-item-title'       => strval( $menu_item->title ),
-						'menu-item-url'         => strval( $menu_item->url ),
+						'menu-item-title'       => $menu_item->title,
+						'menu-item-url'         => $menu_item->url,
 						'menu-item-description' => '',
 						'menu-item-attr-title'  => '',
 						'menu-item-status'      => 'publish',
