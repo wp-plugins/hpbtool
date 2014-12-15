@@ -336,22 +336,6 @@ a.hpb_view_post_list_btn:active {
 	background:url("image/admin/view_comment3_a.png");
 }
 
-#hpb_cockpit_check_btn {
-	display:block;
-	background:url("image/admin/cockpit_check.png");
-	width:202px;
-	height:43px;
-	text-decoration:none;
-}
-
-#hpb_cockpit_check_btn:hover {
-	background:url("image/admin/cockpit_check_h.png");
-}
-
-#hpb_cockpit_check_btn:active {
-	background:url("image/admin/cockpit_check_a.png");
-}
-
 #hpb_aa_check_btn {
 	display:block;
 	background:url("image/admin/aa.png");
@@ -412,17 +396,6 @@ span.hpb_comment_count {
 
 #hpb_aa_settings:hover {
 	background:url("image/admin/aa_settings_h.png");
-}
-
-#hpb_cockpit_settings {
-	display:block;
-	background:url("image/admin/cockpit_settings.png");
-	width:164px;
-	height:24px;
-}
-
-#hpb_cockpit_settings:hover {
-	background:url("image/admin/cockpit_settings_h.png");
 }
 
 #hpb_layout_settings {
@@ -651,22 +624,6 @@ a.hpb_post_new_btn:active {
 
 #hpb_comment_approval_btn3:active {
 	background:url("image/admin/sp/comment_approval3_a.png");
-}
-
-#hpb_cockpit_check_btn {
-	display:block;
-	background:url("image/admin/sp/cockpit_check.png");
-	width:167px;
-	height:43px;
-	text-decoration:none;
-}
-
-#hpb_cockpit_check_btn:hover {
-	background:url("image/admin/sp/cockpit_check_h.png");
-}
-
-#hpb_cockpit_check_btn:active {
-	background:url("image/admin/sp/cockpit_check_a.png");
 }
 
 #hpb_aa_check_btn {

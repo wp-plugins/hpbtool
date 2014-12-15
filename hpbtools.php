@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb19_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.2.6
+Version: 1.2.7
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb19_wp_hpbdash
 License URI: license.txt
@@ -17,7 +17,6 @@ require_once HPB_PLUGIN_DIR.'/social_buttons.php';
 require_once HPB_PLUGIN_DIR.'/form.php';
 require_once HPB_PLUGIN_DIR.'/access_analysis.php';
 require_once HPB_PLUGIN_DIR.'/import.php';
-require_once HPB_PLUGIN_DIR.'/cockpit.php';
 
 add_action( 'admin_menu' , 'hpb_option' );
  
@@ -26,7 +25,6 @@ function hpb_option() {
 	add_submenu_page( 'hpb_main', 'ホーム', 'ホーム', 'level_1', 'hpb_main', 'hpb_admin_home' );
 	add_submenu_page( 'hpb_main', 'ソーシャルボタン設定', 'ソーシャルボタン設定', 'administrator', 'hpb_social_page', 'hpb_social_page' );
 	add_submenu_page( 'hpb_main', 'フォーム設定', 'フォーム設定', 'administrator', 'hpb_form_page', 'hpb_form_page' );
-	add_submenu_page( 'hpb_main', 'コックピット設定', 'コックピット設定', 'administrator', 'hpb_cockpit_page', 'hpb_cockpit_page' );
 	add_submenu_page( 'hpb_main', 'アクセス解析設定', 'アクセス解析設定', 'administrator', 'hpb_access_analysis_page', 'hpb_access_analysis_page' );
 	add_submenu_page( 'hpb_main', 'オプション', 'オプション', 'administrator', 'hpb_dashborad_widget_option', 'hpb_dashborad_widget_option' );		
 }
@@ -47,19 +45,6 @@ function hpb_admin_home() {
 		hpb_guidance_activate_multibyte_patch();
 		hpb_guidance_new_post();
 		hpb_dashboard_widget_function();
-		$p1 = 0;
-		if( get_option('hpb_hide_menus', 1 ) == 1 ) {
-			$p1 = 1;
-		}
-		$p2 = 0;
-		if( get_option('cockpit_activate') == 1 ) {
-			$p2 = 1;
-		}
-		$p3 = home_url();
-		$get_url_withargs = 'https://tracker.web-cockpit.jp/images/ccptplgin.gif?p1='.$p1.'&p2='.$p2.'&p3='.$p3;
-		wp_remote_get( $get_url_withargs, 
-				array(
-				'sslverify' => false,));
 	}
 ?>
 </div>
@@ -147,16 +132,6 @@ function hpb_install_seo_plugin() {
 
 function hpb_activate_seo_plugin() {
 	activate_plugin( 'hpbseo/hpbseo.php');
-}
-
-function hpb_cockpit_service_info() {
-$isInfo = get_option('hpb_cockpit_service_info');
-if($isInfo != 1) {
-?>
-<div class="hpb_eyecatch_area"><table><tr><td><img src="<?php echo HPB_PLUGIN_URL.'/image/admin/eyecatch2.png';?>" class="hpb_eyecatch"></td><td>SNS連携アクセス解析サービス『コックピット』がサービス開始しました！<a href="https://web-cockpit.jp/" target="_blank">もっと詳しく</a><br>サービスにお申し込みいただくと、「コックピット設定」からWordPressとの連携機能がご利用いただけます。<a class="button-primary" href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_cockpit_page'; ?>">コックピット設定</a></td></tr></table></div>
-<?php
-}
-update_option('hpb_cockpit_service_info', 1);
 }
 
 function hpb_guidance_new_post() {
@@ -417,9 +392,6 @@ function hpb_dashboard_widget_function() {
 	<td class="hpb_first_menu_contents"><ul><li class="hpb_menu_item"><a href='edit-comments.php?comment_status=moderated' id="<?php $comment_counts = wp_count_comments(); if( $comment_counts->moderated == 0 ) { echo 'hpb_comment_approval_btn3';} elseif($comment_counts->moderated < 100 ) { echo 'hpb_comment_approval_btn';} else { echo 'hpb_comment_approval_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts->moderated == 0 ) { echo ' displaynone';} ?>"><?php echo $comment_counts->moderated; ?></span></a></li>
 	<li class="hpb_menu_item"><a href='edit-comments.php?comment_status=approved' id="<?php if($comment_counts->approved == 0 ) { echo 'hpb_comment_view_btn3';} elseif($comment_counts->approved < 100 ) { echo 'hpb_comment_view_btn';} else { echo 'hpb_comment_view_btn2';}?>"><span class="hpb_comment_count<?php if( $comment_counts->approved == 0 ) { echo ' displaynone';} ?>"><?php echo $comment_counts->approved; ?></span></a></li></ul></td>
 </tr><tr>
-	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/cockpit_icon.png"></td>
-	<td><ul><li class="hpb_menu_item"><a href='http://www.justsystems.com/jp/links/hpb/cp.html?p=hpb19_wp_hpbdash' id="hpb_cockpit_check_btn" target="_blank"></a></li></ul></td>
-</tr><tr>
 	<td class="hpb_menu_icon"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/seo_icon.png"></td>
 	<td><ul><li class="hpb_menu_item"><a href='https://kantan-access.com/jana_webapp/login.do' id="hpb_aa_check_btn" target="_blank"></a></li></ul></td>
 </tr></table>
@@ -431,7 +403,6 @@ function hpb_dashboard_widget_function() {
 <tr><td class="hpb_menu_icon hpb_first_menu"><img src="<?php echo HPB_PLUGIN_URL; ?>/image/admin/option_icon.png"/></td>
 <td class="hpb_first_menu_contents"><ul class="hpb_option_settings_category">
 	<li class="hpb_option_menu_item"><a href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_social_page'; ?>" id="hpb_socialbutton_settings"></a></li>
-	<li class="hpb_option_menu_item"><a href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_cockpit_page'; ?>" id="hpb_cockpit_settings"></a></li>
 	<li class="hpb_option_menu_item"><a href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_access_analysis_page'; ?>" id="hpb_aa_settings"></a></li>
 	<li class="hpb_option_menu_item"><a href="<?php echo get_option('siteurl') . '/wp-admin/admin.php?page=hpb_main&page=hpb_form_page'; ?>" id="hpb_form_settings"></a></li>
 	<li class="hpb_option_menu_item"><a href="widgets.php" id="hpb_layout_settings"></a></li>
