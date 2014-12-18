@@ -212,18 +212,9 @@ function hpb_import_xml( $post ) {
 		}
 	}
 
-	global $wp_version;
-	$vlist = explode( ".", $wp_version );
-	$major = intval( $vlist[0] );
-	$minor = intval( $vlist[1] );
-	$version41 = $major > 4 || ( $major == 4 && $minor >= 1 );
-
 	//create nav menu
 	$menus = array(); 
 	foreach ( $xml->menu as $menu ) {
-		if ( $version41 ) {
-			update_term_cache( 'name', $menu->name );
-		}
 		$exist_menu = get_term_by( 'name', $menu->name, 'nav_menu' );
 		if( $exist_menu == false ) {
 			$new_menu = wp_create_nav_menu( $menu->name );
