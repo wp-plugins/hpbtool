@@ -3,7 +3,7 @@
 Plugin Name: hpb Dashboard
 Plugin URI:http://www.justsystems.com/jp/links/hpb/wppdf.html?p=hpb19_wp_hpbdash 
 Description: ホームページビルダーが提供するプラグインです。hpbダッシュボードが追加されます。
-Version: 1.2.8
+Version: 1.2.9
 Author: JustSystems
 Author URI:http://www.justsystems.com/jp/links/hpb/creator.html?p=hpb19_wp_hpbdash
 License URI: license.txt
@@ -16,6 +16,7 @@ define( 'HPB_PLUGINDATA_DIR', WP_PLUGIN_DIR.'/hpbtooldata' );
 require_once HPB_PLUGIN_DIR.'/social_buttons.php';
 require_once HPB_PLUGIN_DIR.'/form.php';
 require_once HPB_PLUGIN_DIR.'/access_analysis.php';
+require_once HPB_PLUGIN_DIR.'/google_analytics.php';
 require_once HPB_PLUGIN_DIR.'/import.php';
 
 add_action( 'admin_menu' , 'hpb_option' );
@@ -26,6 +27,7 @@ function hpb_option() {
 	add_submenu_page( 'hpb_main', 'ソーシャルボタン設定', 'ソーシャルボタン設定', 'administrator', 'hpb_social_page', 'hpb_social_page' );
 	add_submenu_page( 'hpb_main', 'フォーム設定', 'フォーム設定', 'administrator', 'hpb_form_page', 'hpb_form_page' );
 	add_submenu_page( 'hpb_main', 'アクセス解析設定', 'アクセス解析設定', 'administrator', 'hpb_access_analysis_page', 'hpb_access_analysis_page' );
+	add_submenu_page( 'hpb_main', 'Google アナリティクス設定', 'Google アナリティクス設定', 'administrator', 'hpb_google_analytics_page', 'hpb_google_analytics_page' );
 	add_submenu_page( 'hpb_main', 'オプション', 'オプション', 'administrator', 'hpb_dashborad_widget_option', 'hpb_dashborad_widget_option' );		
 }
 
@@ -174,6 +176,7 @@ add_action( 'wp_head', 'hpb_head');
 function hpb_head() {
 	hpb_head_form();
 	hpb_head_social();
+	hpb_head_google_analytics();
 }
 
 add_action('template_redirect', 'hpb_template_redirect');
